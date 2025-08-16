@@ -9,9 +9,10 @@ import {
   LayoutDashboard,
   Users,
   BookOpen,
+  Activity,
+  HelpCircle,
   BarChart3,
   Settings,
-  HelpCircle,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -32,6 +33,11 @@ const adminNavItems = [
     title: "Quiz",
     href: "/admin/quiz",
     icon: BookOpen,
+  },
+  {
+    title: "Activities",
+    href: "/admin/activities",
+    icon: Activity,
   },
   {
     title: "Questions",

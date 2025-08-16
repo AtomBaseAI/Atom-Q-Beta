@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { 
   LayoutDashboard, 
   BookOpen, 
+  Activity,
   Settings,
   ChevronLeft,
   ChevronRight
@@ -24,6 +25,11 @@ const userNavItems = [
     title: "Quiz",
     href: "/user/quiz",
     icon: BookOpen,
+  },
+  {
+    title: "Activities",
+    href: "/user/activities",
+    icon: Activity,
   },
 ]
 
