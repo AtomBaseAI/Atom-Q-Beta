@@ -30,6 +30,20 @@ async function main() {
 
   console.log('Created admin user:', admin.email)
 
+  // Create default settings
+  const settings = await prisma.settings.create({
+    data: {
+      siteTitle: 'Atom Q',
+      siteDescription: 'Take quizzes and test your knowledge',
+      maintenanceMode: false,
+      allowRegistration: true,
+      enableGithubAuth: false,
+      accentColor: 'blue',
+    },
+  })
+
+  console.log('Created default settings:', settings.siteTitle)
+
   console.log('✅ Demo data seeded successfully!')
   console.log('🔑 Admin: admin@demo.com / admin123')
 }

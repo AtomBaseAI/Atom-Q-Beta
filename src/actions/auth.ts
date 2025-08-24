@@ -72,6 +72,20 @@ export async function registerAction(formData: FormData) {
       }
     }
 
+    // If no settings exist, create default settings and allow registration
+    if (!settings) {
+      await db.settings.create({
+        data: {
+          siteTitle: 'Atom Q',
+          siteDescription: 'Take quizzes and test your knowledge',
+          maintenanceMode: false,
+          allowRegistration: true,
+          enableGithubAuth: false,
+          accentColor: 'blue',
+        },
+      })
+    }
+
     const existingUser = await db.user.findUnique({
       where: { email: validatedFields.data.email }
     })
@@ -103,7 +117,7 @@ export async function registerAction(formData: FormData) {
   } catch (error) {
     console.error('Registration error:', error)
     return {
-      message: 'Failed to create user',
+      message: 'Failed to create user. Please try again.',
     }
   }
 }

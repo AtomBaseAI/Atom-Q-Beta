@@ -20,8 +20,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if registration is allowed
-    const settings = await db.settings.findFirst()
-    if (settings && !settings.allowRegistration) {
+    let settings = await db.settings.findFirst()
+    
+    // If no settings exist, create default settings and allow registration
+    if (!settings) {
+      settings = await db.settings.create({
+        data: {
+          siteTitle: 'Atom Q',
+          siteDescription: 'Take quizzes and test your knowledge',
+          maintenanceMode: false,
+          allowRegistration: true,
+          enableGithubAuth: false,
+          accentColor: 'blue',
+        },
+      })
+    }
+    
+    if (!settings.allowRegistration) {
       return NextResponse.json(
         { message: "Registration is currently disabled" },
         { status: 403 }
@@ -57,7 +72,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Registration error:", error)
     return NextResponse.json(
-      { message: "An error occurred during registration" },
+      { message: "An error occurred during registration. Please try again." },
       { status: 500 }
     )
   }

@@ -10,11 +10,11 @@ import { Loader2, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { toasts } from "@/lib/toasts"
 import HexagonLoader from "@/components/Loader/Loading"
-import { LoginFormOptimized } from "@/components/forms/login-form-optimized"
+import { LoginForm } from "@/components/forms/login-form"
 import { useUserStore } from "@/stores/user"
 import { useSettingsSync } from "@/hooks/use-settings-sync"
 
-function LoginPageOptimized() {
+function LoginPage() {
   const [error, setError] = useState("")
   const router = useRouter()
   const { theme, setTheme } = useTheme()
@@ -100,7 +100,7 @@ function LoginPageOptimized() {
             </Alert>
           )}
           
-          <LoginFormOptimized 
+          <LoginForm 
             onSuccess={handleLoginSuccess}
             onError={handleLoginError}
           />
@@ -118,10 +118,10 @@ function LoginPageOptimized() {
   )
 }
 
-export default function HomePageOptimized() {
+export default function HomePage() {
   return (
     <Suspense fallback={<div className="flex items-center justify-center h-[80vh] "><HexagonLoader size={80} /></div>}>
-      <LoginPageOptimized />
+      <LoginPage />
     </Suspense>
   )
 }

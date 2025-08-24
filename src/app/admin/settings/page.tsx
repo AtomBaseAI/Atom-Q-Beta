@@ -25,7 +25,7 @@ const colorOptions = [
   { value: "pink", label: "Pink", color: "bg-pink-500" },
 ]
 
-export default function SettingsPageOptimized() {
+export default function SettingsPage() {
   const { 
     settings, 
     isLoading, 

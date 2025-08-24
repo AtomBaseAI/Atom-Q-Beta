@@ -92,14 +92,14 @@ export default function RegisterPage() {
         })
         setError(result.message || "Validation failed")
         toasts.registrationFailed(result.message || "Validation failed")
-      } else if (result?.message) {
-        setError(result.message)
-        toasts.registrationFailed(result.message)
       } else if (result?.success) {
         toasts.registrationSuccess()
         setTimeout(() => {
           router.push("/")
         }, 1500)
+      } else if (result?.message) {
+        setError(result.message)
+        toasts.registrationFailed(result.message)
       } else {
         setError("An error occurred. Please try again.")
         toasts.registrationFailed("An error occurred. Please try again.")
