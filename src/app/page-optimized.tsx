@@ -12,7 +12,6 @@ import { toasts } from "@/lib/toasts"
 import HexagonLoader from "@/components/Loader/Loading"
 import { LoginFormOptimized } from "@/components/forms/login-form-optimized"
 import { useUserStore } from "@/stores/user"
-import { useSettingsSync } from "@/hooks/use-settings-sync"
 
 function LoginPageOptimized() {
   const [error, setError] = useState("")
@@ -21,7 +20,6 @@ function LoginPageOptimized() {
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
   const { user } = useUserStore()
-  const { siteTitle, isMaintenanceMode } = useSettingsSync()
 
   useEffect(() => {
     const maintenanceError = searchParams.get('error')
@@ -52,13 +50,6 @@ function LoginPageOptimized() {
     }
   }, [user, session, router])
 
-  // Handle maintenance mode
-  useEffect(() => {
-    if (isMaintenanceMode) {
-      setError("Site is under maintenance. Only administrators can login.")
-    }
-  }, [isMaintenanceMode])
-
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light")
   }
@@ -88,7 +79,7 @@ function LoginPageOptimized() {
 
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">{siteTitle}</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Atom Q</CardTitle>
           <CardDescription className="text-center">
             Enter your credentials to access your account
           </CardDescription>

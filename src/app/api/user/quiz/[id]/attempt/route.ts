@@ -70,16 +70,6 @@ export async function GET(
       )
     }
 
-    // Debug log the raw quiz questions
-    console.log("Raw quiz questions:", attempt.quiz.quizQuestions.map(qq => ({
-      id: qq.id,
-      order: qq.order,
-      points: qq.points,
-      questionId: qq.questionId,
-      hasQuestion: !!qq.question,
-      questionContent: qq.question?.content?.substring(0, 50)
-    })))
-
     // Calculate time remaining
     const timeElapsed = attempt.startedAt ? Math.floor((new Date().getTime() - new Date(attempt.startedAt).getTime()) / 1000) : 0
     const timeLimit = (attempt.quiz.timeLimit || 0) * 60 // Convert minutes to seconds

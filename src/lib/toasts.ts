@@ -205,6 +205,12 @@ export const userToasts = {
     showToast.success("Logged out successfully")
   },
 
+  logoutFailed: (error?: string) => {
+    showToast.error("Logout failed", {
+      description: error
+    })
+  },
+
   // Quiz actions
   quizStarted: (quizTitle: string) => {
     showToast.info(`Quiz "${quizTitle}" started`)

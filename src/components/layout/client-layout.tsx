@@ -4,6 +4,7 @@ import { Toaster } from "sonner"
 import { SessionProviderWrapper } from "@/components/providers/session-provider"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { AccentColorProvider } from "@/components/providers/accent-color-provider"
+import { SettingsProvider } from "@/components/providers/settings-provider"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname } from "next/navigation"
 
@@ -23,18 +24,20 @@ export default function ClientLayout({
         disableTransitionOnChange
       >
         <AccentColorProvider>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-          <Toaster richColors position="top-right" />
+          <SettingsProvider>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+            <Toaster richColors position="top-right" />
+          </SettingsProvider>
         </AccentColorProvider>
       </ThemeProvider>
     </SessionProviderWrapper>

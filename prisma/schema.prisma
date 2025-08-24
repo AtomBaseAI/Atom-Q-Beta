@@ -24,8 +24,6 @@ model User {
   quizUsers      QuizUser[]
   createdQuizzes Quiz[]          @relation("QuizCreator")
   questionGroups QuestionGroup[]
-  createdActivities Activity[]    @relation("ActivityCreator")
-  activityParticipants ActivityParticipant[]
 
   @@map("users")
 }
@@ -57,8 +55,6 @@ model Question {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   quizQuestions QuizQuestion[]
-  activityQuestions ActivityQuestion[]
-  activityAnswers ActivityAnswer[]
   groupId       String
   group         QuestionGroup?  @relation(fields: [groupId], references: [id])
 
@@ -89,84 +85,6 @@ model Quiz {
   checkAnswerEnabled Boolean         @default(false)
 
   @@map("quizzes")
-}
-
-model Activity {
-  id           String        @id @default(cuid())
-  title        String
-  description  String?
-  accessKey    String        @unique
-  status       ActivityStatus @default(DRAFT)
-  startTime    DateTime?
-  endTime      DateTime?
-  creatorId    String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  questions    ActivityQuestion[]
-  participants ActivityParticipant[]
-  sessions     ActivitySession[]
-  creator      User          @relation("ActivityCreator", fields: [creatorId], references: [id])
-
-  @@map("activities")
-}
-
-model ActivityQuestion {
-  id           String      @id @default(cuid())
-  activityId   String
-  questionId   String
-  order        Int
-  points       Float       @default(1.0)
-  createdAt    DateTime    @default(now())
-  question     Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  activity     Activity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
-
-  @@unique([activityId, questionId])
-  @@map("activity_questions")
-}
-
-model ActivityParticipant {
-  id         String      @id @default(cuid())
-  activityId String
-  userId     String
-  joinedAt   DateTime    @default(now())
-  score      Float?
-  rank       Int?
-  activity   Activity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([activityId, userId])
-  @@map("activity_participants")
-}
-
-model ActivitySession {
-  id           String           @id @default(cuid())
-  activityId   String
-  currentQuestion Int?
-  status       SessionStatus    @default(WAITING)
-  startTime    DateTime?
-  endTime      DateTime?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  answers      ActivityAnswer[]
-  activity     Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
-
-  @@map("activity_sessions")
-}
-
-model ActivityAnswer {
-  id           String              @id @default(cuid())
-  sessionId    String
-  questionId   String
-  userAnswer   String
-  isCorrect    Boolean?
-  pointsEarned Float?
-  timeSpent    Int?
-  answeredAt   DateTime            @default(now())
-  session      ActivitySession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  question     Question            @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@unique([sessionId, questionId])
-  @@map("activity_answers")
 }
 
 model QuizQuestion {
@@ -230,7 +148,7 @@ model QuizAnswer {
 
 model Settings {
   id                String   @id @default(cuid())
-  siteTitle         String   @default("QuizMaster")
+  siteTitle         String   @default("Atom Q")
   siteDescription   String   @default("Take quizzes and test your knowledge")
   maintenanceMode   Boolean  @default(false)
   allowRegistration Boolean  @default(true)
@@ -264,20 +182,6 @@ enum QuizStatus {
   DRAFT
   ACTIVE
   INACTIVE
-}
-
-enum ActivityStatus {
-  DRAFT
-  ACTIVE
-  COMPLETED
-  CANCELLED
-}
-
-enum SessionStatus {
-  WAITING
-  PLAYING
-  PAUSED
-  FINISHED
 }
 
 enum AttemptStatus {

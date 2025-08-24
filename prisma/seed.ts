@@ -18,11 +18,11 @@ async function main() {
   console.log('Cleaned existing data...')
 
   // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10)
+  const adminPassword = await bcrypt.hash('Admin@atomq', 10)
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@demo.com',
-      name: 'Admin User',
+      email: 'admin@atomcode.dev',
+      name: 'Atom Admin',
       password: adminPassword,
       role: UserRole.ADMIN,
     },

@@ -14,6 +14,8 @@ import {
 import { Moon, Sun, LogOut, Menu } from "lucide-react"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
+import { useSettingsSync } from "@/hooks/use-settings-sync"
+import { SettingsMenu } from "@/components/ui/settings-menu"
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -22,6 +24,7 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const { data: session } = useSession()
   const { theme, setTheme } = useTheme()
+  const { siteTitle } = useSettingsSync()
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" })
@@ -47,10 +50,11 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         <div className="flex flex-1 items-center justify-between">
           <div className="flex items-center space-x-2">
-            <h1 className="text-lg font-semibold">Admin Dashboard</h1>
+            <h1 className="text-lg font-semibold">{siteTitle} Admin</h1>
           </div>
 
           <div className="flex items-center justify-end space-x-2 ml-auto">
+            <SettingsMenu />
             <Button
               variant="ghost"
               size="icon"

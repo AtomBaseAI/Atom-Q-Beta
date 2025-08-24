@@ -291,7 +291,7 @@ export default function UserSettingsPage() {
                   {profile.name?.charAt(0).toUpperCase() || session.user.name?.charAt(0).toUpperCase() || profile.email.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <Label
+              {/* <Label
                 htmlFor="avatar-upload"
                 className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1 cursor-pointer hover:bg-primary/90 transition-colors"
               >
@@ -303,10 +303,10 @@ export default function UserSettingsPage() {
                 accept="image/*"
                 className="hidden"
                 onChange={handleAvatarUpload}
-              />
+              /> */}
             </div>
             <div>
-              <h3 className="text-lg font-medium">Profile Picture</h3>
+              <h3 className="text-lg font-medium">Profile Picture (disabled)</h3>
               <p className="text-sm text-muted-foreground">
                 Click the camera icon to upload a new profile picture
               </p>

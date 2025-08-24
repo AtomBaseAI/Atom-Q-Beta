@@ -17,6 +17,7 @@ import { registerSchema } from "@/schema/auth"
 import { registerAction } from "@/actions/auth"
 import type { z } from "zod"
 import { LoadingButton } from "@/components/ui/laodaing-button"
+import { useSettingsSync } from "@/hooks/use-settings-sync"
 
 type RegisterFormData = z.infer<typeof registerSchema>
 
@@ -25,6 +26,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const router = useRouter()
   const { theme, setTheme } = useTheme()
+  const { siteTitle, allowRegistration } = useSettingsSync()
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -36,6 +38,37 @@ export default function RegisterPage() {
       phone: "",
     }
   })
+
+  // Check if registration is allowed
+  if (allowRegistration === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">{siteTitle}</CardTitle>
+            <CardDescription className="text-center">
+              Registration is currently disabled
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="destructive">
+              <AlertDescription>
+                User registration is currently disabled. Please contact the administrator for access.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button 
+              className="w-full" 
+              onClick={() => router.push("/")}
+            >
+              Back to Login
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    )
+  }
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
@@ -62,11 +95,14 @@ export default function RegisterPage() {
       } else if (result?.message) {
         setError(result.message)
         toasts.registrationFailed(result.message)
-      } else {
+      } else if (result?.success) {
         toasts.registrationSuccess()
         setTimeout(() => {
           router.push("/")
-        }, 1000)
+        }, 1500)
+      } else {
+        setError("An error occurred. Please try again.")
+        toasts.registrationFailed("An error occurred. Please try again.")
       }
     } catch (error) {
       setError("An error occurred. Please try again.")
@@ -97,9 +133,9 @@ export default function RegisterPage() {
 
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">{siteTitle}</CardTitle>
           <CardDescription className="text-center">
-            Join Atom Q and start testing your knowledge
+            Join {siteTitle} and start testing your knowledge
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -144,7 +180,7 @@ export default function RegisterPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone (Optional)</FormLabel>
+                    <FormLabel>Phone</FormLabel>
                     <FormControl>
                       <Input type="tel" placeholder="Enter your phone number" {...field} />
                     </FormControl>

@@ -9,12 +9,23 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { toasts } from "@/lib/toasts"
-import { Loader2, Save, Settings, RefreshCw, CheckCircle } from "lucide-react"
-import { useSettings } from "@/components/providers/settings-provider"
+import { Loader2, Save, Settings } from "lucide-react"
+import { useAccentColor } from "@/components/providers/accent-color-provider"
 import HexagonLoader from "@/components/Loader/Loading"
 import { LoadingButton } from "@/components/ui/laodaing-button"
+
+interface SettingsData {
+  id: string
+  siteTitle: string
+  siteDescription: string
+  maintenanceMode: boolean
+  allowRegistration: boolean
+  enableGithubAuth: boolean
+  accentColor: string
+  createdAt: string
+  updatedAt: string
+}
 
 const colorOptions = [
   { value: "blue", label: "Blue", color: "bg-blue-500" },
@@ -25,18 +36,11 @@ const colorOptions = [
   { value: "pink", label: "Pink", color: "bg-pink-500" },
 ]
 
-export default function SettingsPageOptimized() {
-  const { 
-    settings, 
-    isLoading, 
-    error, 
-    updateSettings, 
-    refreshSettings,
-    fetchSettings 
-  } = useSettings()
-  
+export default function SettingsPage() {
+  const { setAccentColor } = useAccentColor()
+  const [settings, setSettings] = useState<SettingsData | null>(null)
+  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
   const [formData, setFormData] = useState({
     siteTitle: "",
     siteDescription: "",
@@ -46,35 +50,31 @@ export default function SettingsPageOptimized() {
     accentColor: "blue"
   })
 
-  // Initialize form data when settings are loaded
   useEffect(() => {
-    if (settings) {
-      setFormData({
-        siteTitle: settings.siteTitle,
-        siteDescription: settings.siteDescription,
-        maintenanceMode: settings.maintenanceMode,
-        allowRegistration: settings.allowRegistration,
-        enableGithubAuth: settings.enableGithubAuth,
-        accentColor: settings.accentColor
-      })
-      setHasChanges(false)
-    }
-  }, [settings])
+    fetchSettings()
+  }, [])
 
-  // Check for changes
-  useEffect(() => {
-    if (settings) {
-      const changed = 
-        formData.siteTitle !== settings.siteTitle ||
-        formData.siteDescription !== settings.siteDescription ||
-        formData.maintenanceMode !== settings.maintenanceMode ||
-        formData.allowRegistration !== settings.allowRegistration ||
-        formData.enableGithubAuth !== settings.enableGithubAuth ||
-        formData.accentColor !== settings.accentColor
-      
-      setHasChanges(changed)
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch("/api/admin/settings")
+      if (response.ok) {
+        const data = await response.json()
+        setSettings(data)
+        setFormData({
+          siteTitle: data.siteTitle,
+          siteDescription: data.siteDescription,
+          maintenanceMode: data.maintenanceMode,
+          allowRegistration: data.allowRegistration,
+          enableGithubAuth: data.enableGithubAuth,
+          accentColor: data.accentColor
+        })
+      }
+    } catch (error) {
+      toasts.networkError()
+    } finally {
+      setLoading(false)
     }
-  }, [formData, settings])
+  }
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({
@@ -88,78 +88,52 @@ export default function SettingsPageOptimized() {
     setSaving(true)
 
     try {
-      await updateSettings(formData)
-      setHasChanges(false)
+      const response = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      })
+
+      if (response.ok) {
+        const updatedSettings = await response.json()
+        setSettings(updatedSettings)
+        setAccentColor(updatedSettings.accentColor)
+        toasts.settingsUpdated()
+
+        // Show specific toasts for maintenance mode changes
+        if (formData.maintenanceMode !== updatedSettings.maintenanceMode) {
+          if (updatedSettings.maintenanceMode) {
+            toasts.maintenanceModeEnabled()
+          } else {
+            toasts.maintenanceModeDisabled()
+          }
+        }
+      } else {
+        toasts.actionFailed("Settings update")
+      }
     } catch (error) {
-      // Error is handled by the provider
+      toasts.actionFailed("Settings update")
     } finally {
       setSaving(false)
     }
   }
 
-  const handleRefresh = async () => {
-    await refreshSettings()
-  }
-
-  const handleReset = () => {
-    if (settings) {
-      setFormData({
-        siteTitle: settings.siteTitle,
-        siteDescription: settings.siteDescription,
-        maintenanceMode: settings.maintenanceMode,
-        allowRegistration: settings.allowRegistration,
-        enableGithubAuth: settings.enableGithubAuth,
-        accentColor: settings.accentColor
-      })
-      setHasChanges(false)
-    }
-  }
-
-  if (isLoading && !settings) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-[80vh]">
-        <HexagonLoader size={80} />
-      </div>
+      <div className="flex items-center justify-center h-[80vh] "><HexagonLoader size={80} /></div>
     )
   }
 
   return (
     <div className="space-y-6">
-      {/* Header with refresh button */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">
-            Manage your application settings and preferences
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={isLoading}
-        >
-          <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <p className="text-muted-foreground">
+          Manage your application settings and preferences
+        </p>
       </div>
-
-      {/* Error display */}
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Success indicator */}
-      {settings && !hasChanges && (
-        <Alert className="border-green-200 bg-green-50">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">
-            Settings are up to date and synchronized across all interfaces.
-          </AlertDescription>
-        </Alert>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* General Settings */}
@@ -182,9 +156,6 @@ export default function SettingsPageOptimized() {
                 onChange={(e) => handleInputChange("siteTitle", e.target.value)}
                 placeholder="Enter site title"
               />
-              <p className="text-xs text-muted-foreground">
-                This title appears in the browser tab and across the application
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -196,9 +167,6 @@ export default function SettingsPageOptimized() {
                 placeholder="Enter site description"
                 rows={3}
               />
-              <p className="text-xs text-muted-foreground">
-                Used in meta tags and SEO descriptions
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -218,9 +186,6 @@ export default function SettingsPageOptimized() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Changes apply immediately across all interfaces
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -296,22 +261,12 @@ export default function SettingsPageOptimized() {
           </CardContent>
         </Card>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleReset}
-            disabled={!hasChanges || saving}
-          >
-            Reset Changes
-          </Button>
-          
+        {/* Save Button */}
+        <div className="flex justify-end">
           <LoadingButton 
             type="submit" 
             isLoading={saving}
             loadingText="Saving..."
-            disabled={!hasChanges}
           >
             <Save className="mr-2 h-4 w-4" />
             Save Changes
@@ -327,11 +282,8 @@ export default function SettingsPageOptimized() {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             <div className="space-y-1">
-              <p>Last updated: {settings.updatedAt ? new Date(settings.updatedAt).toLocaleString() : 'Never'}</p>
-              <p>Created: {settings.createdAt ? new Date(settings.createdAt).toLocaleString() : 'Unknown'}</p>
-              <p className="text-xs text-green-600 mt-2">
-                ✓ Settings are synchronized in real-time across all user interfaces
-              </p>
+              <p>Last updated: {new Date(settings.updatedAt).toLocaleString()}</p>
+              <p>Created: {new Date(settings.createdAt).toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>

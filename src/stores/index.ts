@@ -1,5 +1,3 @@
-export { useUserPreferencesStore } from './user-preferences'
-export { useQuizStore } from './quiz-state'
-export { useUIStore } from './ui-state'
 export { useUserStore } from './user'
 export { useQuizCacheStore } from './quiz-cache'
+export { useSettingsStore } from './settings'

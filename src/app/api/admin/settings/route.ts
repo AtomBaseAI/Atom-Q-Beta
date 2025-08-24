@@ -1,7 +1,7 @@
 
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions } from "@/lib/auth-optimized"
 import { db } from "@/lib/db"
 import { UserRole } from "@prisma/client"
 
@@ -22,7 +22,12 @@ export async function GET() {
       })
     }
 
-    return NextResponse.json(settings)
+    return NextResponse.json(settings, {
+      headers: {
+        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+        'CDN-Cache-Control': 'public, max-age=300',
+      }
+    })
   } catch (error) {
     console.error("Error fetching settings:", error)
     return NextResponse.json(
@@ -80,7 +85,12 @@ export async function PUT(request: Request) {
       })
     }
 
-    return NextResponse.json(settings)
+    return NextResponse.json(settings, {
+      headers: {
+        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+        'CDN-Cache-Control': 'public, max-age=300',
+      }
+    })
   } catch (error) {
     console.error("Error updating settings:", error)
     return NextResponse.json(

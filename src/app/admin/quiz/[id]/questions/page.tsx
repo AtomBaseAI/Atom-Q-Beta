@@ -535,7 +535,6 @@ export default function QuizQuestionsPage() {
       skipEmptyLines: true,
       complete: async (results) => {
         try {
-          console.log("CSV parsing results:", results)
 
           // Filter out empty rows and validate required fields
           const validQuestions = results.data.filter((row: any) => {
@@ -548,7 +547,6 @@ export default function QuizQuestionsPage() {
             return hasTitle && hasContent && hasType && hasOptions && hasCorrectAnswer
           })
 
-          console.log("Valid questions found:", validQuestions.length)
 
           if (validQuestions.length === 0) {
             toast.error("No valid questions found in CSV file. Please ensure all required fields are filled.")
@@ -558,7 +556,6 @@ export default function QuizQuestionsPage() {
           // Create questions in the selected group
           const importPromises = validQuestions.map(async (question: any, index: number) => {
             try {
-              console.log(`Processing question ${index + 1}:`, question)
 
               // Normalize question type
               let questionType = question.Type?.toString().toUpperCase().trim()
@@ -663,7 +660,6 @@ export default function QuizQuestionsPage() {
       skipEmptyLines: true,
       complete: async (results) => {
         try {
-          console.log("CSV parsing results:", results)
 
           // Filter out empty rows and validate required fields
           const validQuestions = results.data.filter((row: any) => {
@@ -676,7 +672,6 @@ export default function QuizQuestionsPage() {
             return hasTitle && hasContent && hasType && hasOptions && hasCorrectAnswer
           })
 
-          console.log("Valid questions found:", validQuestions.length)
 
           if (validQuestions.length === 0) {
             toast.error("No valid questions found in CSV file. Please ensure all required fields are filled.")
@@ -685,7 +680,6 @@ export default function QuizQuestionsPage() {
 
           const importPromises = validQuestions.map(async (question: any, index: number) => {
             try {
-              console.log(`Processing question ${index + 1}:`, question)
 
               // Normalize question type
               let questionType = question.Type?.toString().toUpperCase().trim()
@@ -733,14 +727,11 @@ export default function QuizQuestionsPage() {
                 }
               }
 
-              console.log(`Parsed options for "${question.Title}":`, options)
-              console.log(`Options length: ${options.length}, Options array:`, options)
 
               // Ensure True/False questions have correct options
               if (questionType === QuestionType.TRUE_FALSE) {
                 if (options.length !== 2 || !options.includes("True") || !options.includes("False")) {
                   options = ["True", "False"]
-                  console.log(`Standardized True/False options for "${question.Title}"`)
                 }
               }
 
@@ -784,7 +775,6 @@ export default function QuizQuestionsPage() {
                 points: points
               }
 
-              console.log(`Sending question data for "${questionData.title}":`, questionData)
 
               const response = await fetch(`/api/admin/quiz/${quizId}/questions`, {
                 method: "POST",
@@ -801,7 +791,6 @@ export default function QuizQuestionsPage() {
               }
 
               const result = await response.json()
-              console.log(`Successfully imported question "${questionData.title}":`, result)
               return result
             } catch (error) {
               console.error(`Failed to import question "${question.Title}":`, error)
@@ -817,7 +806,6 @@ export default function QuizQuestionsPage() {
           const successfulImports = importResults.filter(result => !result.error)
           const failedImports = importResults.filter(result => result.error)
 
-          console.log(`Import results: ${successfulImports.length} successful, ${failedImports.length} failed`)
 
           if (successfulImports.length > 0) {
             toast.success(`Successfully imported ${successfulImports.length} question(s)`)

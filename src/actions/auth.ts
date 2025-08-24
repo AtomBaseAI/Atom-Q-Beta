@@ -2,7 +2,7 @@
 'use server'
 
 import { signIn } from 'next-auth/react'
-import { hash } from 'bcryptjs'
+import { hash, compare } from 'bcryptjs'
 import { db } from '@/lib/db'
 import { loginSchema, registerSchema, changePasswordSchema } from '@/schema/auth'
 import { revalidatePath } from 'next/cache'
@@ -64,6 +64,14 @@ export async function registerAction(formData: FormData) {
   }
 
   try {
+    // Check if registration is allowed
+    const settings = await db.settings.findFirst()
+    if (settings && !settings.allowRegistration) {
+      return {
+        message: 'Registration is currently disabled',
+      }
+    }
+
     const existingUser = await db.user.findUnique({
       where: { email: validatedFields.data.email }
     })
@@ -82,12 +90,18 @@ export async function registerAction(formData: FormData) {
         email: validatedFields.data.email,
         password: hashedPassword,
         phone: validatedFields.data.phone || null,
+        role: 'USER',
+        isActive: true,
       }
     })
 
     revalidatePath('/register')
-    redirect('/')
+    return {
+      success: true,
+      message: 'User created successfully',
+    }
   } catch (error) {
+    console.error('Registration error:', error)
     return {
       message: 'Failed to create user',
     }
@@ -121,7 +135,7 @@ export async function changePasswordAction(userId: string, formData: FormData) {
       }
     }
 
-    const isValidPassword = await hash(validatedFields.data.currentPassword, 12) === user.password
+    const isValidPassword = await compare(validatedFields.data.currentPassword, user.password)
 
     if (!isValidPassword) {
       return {
