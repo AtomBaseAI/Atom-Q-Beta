@@ -1158,7 +1158,7 @@ export default function QuizQuestionsPage() {
 
       {/* View Question Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] min-w-[70vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Question Details</DialogTitle>
             <DialogDescription>

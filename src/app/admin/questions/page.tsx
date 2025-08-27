@@ -158,7 +158,7 @@ export default function QuestionsPage() {
               New Group
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="dialog-fullscreen">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>

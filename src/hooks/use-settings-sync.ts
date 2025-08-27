@@ -30,7 +30,8 @@ export function useSettingsSync(options: UseSettingsSyncOptions = {}) {
     }
   }, [settings, options.onUpdate])
 
-  // Auto-refresh settings when user changes (for role-based settings)
+  // Only refresh settings when user changes (for role-based settings)
+  // Removed automatic refresh on mount to prevent multiple fetching
   useEffect(() => {
     if (user && options.enabled !== false) {
       refreshSettings()

@@ -71,8 +71,8 @@ export const useSettingsStore = create<SettingsState>()(
       fetchSettings: async () => {
         const state = get()
         
-        // Don't fetch if already loading or recently updated (within 30 seconds)
-        if (state.isLoading || (state.lastUpdated && Date.now() - state.lastUpdated < 30000)) {
+        // Don't fetch if already loading or recently updated (within 5 minutes)
+        if (state.isLoading || (state.lastUpdated && Date.now() - state.lastUpdated < 300000)) {
           return
         }
 

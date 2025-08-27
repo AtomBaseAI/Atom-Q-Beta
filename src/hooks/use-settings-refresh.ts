@@ -12,8 +12,8 @@ interface UseSettingsRefreshOptions {
 }
 
 /**
- * Hook for refreshing settings with automatic refresh capabilities
- * Provides both manual and automatic refresh functionality
+ * Hook for refreshing settings with manual refresh only
+ * Auto-refresh disabled to prevent multiple fetching
  */
 export function useSettingsRefresh(options: UseSettingsRefreshOptions = {}) {
   const { 
@@ -27,8 +27,8 @@ export function useSettingsRefresh(options: UseSettingsRefreshOptions = {}) {
   const { user } = useUserStore()
   
   const {
-    autoRefresh = false,
-    refreshInterval = 30000, // 30 seconds default
+    autoRefresh = false, // Disabled by default
+    refreshInterval = 30000,
     enabled = true,
     onRefresh
   } = options
@@ -47,7 +47,7 @@ export function useSettingsRefresh(options: UseSettingsRefreshOptions = {}) {
     }
   }, [refreshSettings, enabled, onRefresh, settings])
 
-  // Auto-refresh functionality
+  // Auto-refresh functionality - disabled by default
   useEffect(() => {
     if (!autoRefresh || !enabled) return
 
@@ -56,14 +56,15 @@ export function useSettingsRefresh(options: UseSettingsRefreshOptions = {}) {
     return () => clearInterval(interval)
   }, [autoRefresh, refreshInterval, refresh, enabled])
 
-  // Refresh when user changes (for role-based settings)
+  // Only refresh when user changes (for role-based settings)
+  // Removed automatic refresh on mount to prevent multiple fetching
   useEffect(() => {
     if (user && enabled) {
       refresh()
     }
   }, [user, refresh, enabled])
 
-  // Initial fetch
+  // Initial fetch - only if no settings exist
   useEffect(() => {
     if (enabled && !settings) {
       fetchSettings()

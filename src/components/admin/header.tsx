@@ -14,7 +14,7 @@ import {
 import { Moon, Sun, LogOut, Menu } from "lucide-react"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
-import { useSettingsSync } from "@/hooks/use-settings-sync"
+import { useSettings } from "@/components/providers/settings-provider"
 import { SettingsMenu } from "@/components/ui/settings-menu"
 
 interface HeaderProps {
@@ -24,7 +24,7 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const { data: session } = useSession()
   const { theme, setTheme } = useTheme()
-  const { siteTitle } = useSettingsSync()
+  const { settings } = useSettings()
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" })
@@ -32,7 +32,52 @@ export function Header({ onMenuClick }: HeaderProps) {
   }
 
   const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light")
+    const newTheme = theme === "light" ? "dark" : "light"
+    setTheme(newTheme)
+    
+    // Apply theme changes instantly for admin
+    const root = document.documentElement
+    if (newTheme === "dark") {
+      root.style.setProperty("--background", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--card", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--card-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--popover", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--popover-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--primary", "hsl(221.2 83.2% 53.3%)")
+      root.style.setProperty("--primary-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--secondary", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--secondary-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--muted", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--muted-foreground", "hsl(215 20.2% 65.1%)")
+      root.style.setProperty("--accent", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--accent-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--destructive", "hsl(0 62.8% 30.6%)")
+      root.style.setProperty("--destructive-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--border", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--input", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--ring", "hsl(224.3 76.3% 94.1%)")
+    } else {
+      root.style.setProperty("--background", "hsl(0 0% 100%)")
+      root.style.setProperty("--foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--card", "hsl(0 0% 100%)")
+      root.style.setProperty("--card-foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--popover", "hsl(0 0% 100%)")
+      root.style.setProperty("--popover-foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--primary", "hsl(221.2 83.2% 53.3%)")
+      root.style.setProperty("--primary-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--secondary", "hsl(210 40% 96%)")
+      root.style.setProperty("--secondary-foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--muted", "hsl(210 40% 96%)")
+      root.style.setProperty("--muted-foreground", "hsl(215.4 16.3% 46.9%)")
+      root.style.setProperty("--accent", "hsl(210 40% 96%)")
+      root.style.setProperty("--accent-foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--destructive", "hsl(0 84.2% 60.2%)")
+      root.style.setProperty("--destructive-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--border", "hsl(214.3 31.8% 91.4%)")
+      root.style.setProperty("--input", "hsl(214.3 31.8% 91.4%)")
+      root.style.setProperty("--ring", "hsl(221.2 83.2% 53.3%)")
+    }
   }
 
   return (
@@ -50,7 +95,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         <div className="flex flex-1 items-center justify-between">
           <div className="flex items-center space-x-2">
-            <h1 className="text-lg font-semibold">{siteTitle} Admin</h1>
+            <h1 className="text-lg font-semibold">{settings?.siteTitle || "Atom Q"} Admin</h1>
           </div>
 
           <div className="flex items-center justify-end space-x-2 ml-auto">

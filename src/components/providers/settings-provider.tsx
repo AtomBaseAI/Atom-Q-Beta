@@ -67,7 +67,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     }
   }, [settings.siteTitle])
 
-  // Update accent color when it changes
+  // Update accent color when it changes - only for admin, not for login screen
   useEffect(() => {
     if (settings.accentColor) {
       setAccentColor(settings.accentColor)
@@ -95,7 +95,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     if (twitterDescription) twitterDescription.setAttribute('content', settings.siteDescription)
   }, [settings.siteTitle, settings.siteDescription])
 
-  // Fetch settings on mount
+  // Fetch settings on mount - only once
   useEffect(() => {
     fetchStoreSettings()
   }, [])

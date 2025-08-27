@@ -12,16 +12,34 @@ import { toasts } from "@/lib/toasts"
 import HexagonLoader from "@/components/Loader/Loading"
 import { LoginForm } from "@/components/forms/login-form"
 import { useUserStore } from "@/stores/user"
-import { useSettingsSync } from "@/hooks/use-settings-sync"
 
 function LoginPage() {
   const [error, setError] = useState("")
+  const [siteTitle, setSiteTitle] = useState("Atom Q")
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false)
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const { data: session, status } = useSession()
   const searchParams = useSearchParams()
   const { user } = useUserStore()
-  const { siteTitle, isMaintenanceMode } = useSettingsSync()
+
+  // Fetch basic settings locally for login screen only
+  useEffect(() => {
+    const fetchLoginSettings = async () => {
+      try {
+        const response = await fetch('/api/admin/settings')
+        if (response.ok) {
+          const data = await response.json()
+          setSiteTitle(data.siteTitle || "Atom Q")
+          setIsMaintenanceMode(data.maintenanceMode || false)
+        }
+      } catch (error) {
+        console.error('Failed to fetch login settings:', error)
+      }
+    }
+    
+    fetchLoginSettings()
+  }, [])
 
   useEffect(() => {
     const maintenanceError = searchParams.get('error')
@@ -60,7 +78,52 @@ function LoginPage() {
   }, [isMaintenanceMode])
 
   const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light")
+    const newTheme = theme === "light" ? "dark" : "light"
+    setTheme(newTheme)
+    
+    // Apply theme changes instantly to CSS custom properties
+    const root = document.documentElement
+    if (newTheme === "dark") {
+      root.style.setProperty("--background", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--card", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--card-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--popover", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--popover-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--primary", "hsl(221.2 83.2% 53.3%)")
+      root.style.setProperty("--primary-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--secondary", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--secondary-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--muted", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--muted-foreground", "hsl(215 20.2% 65.1%)")
+      root.style.setProperty("--accent", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--accent-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--destructive", "hsl(0 62.8% 30.6%)")
+      root.style.setProperty("--destructive-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--border", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--input", "hsl(217.2 32.6% 17.5%)")
+      root.style.setProperty("--ring", "hsl(224.3 76.3% 94.1%)")
+    } else {
+      root.style.setProperty("--background", "hsl(0 0% 100%)")
+      root.style.setProperty("--foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--card", "hsl(0 0% 100%)")
+      root.style.setProperty("--card-foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--popover", "hsl(0 0% 100%)")
+      root.style.setProperty("--popover-foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--primary", "hsl(221.2 83.2% 53.3%)")
+      root.style.setProperty("--primary-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--secondary", "hsl(210 40% 96%)")
+      root.style.setProperty("--secondary-foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--muted", "hsl(210 40% 96%)")
+      root.style.setProperty("--muted-foreground", "hsl(215.4 16.3% 46.9%)")
+      root.style.setProperty("--accent", "hsl(210 40% 96%)")
+      root.style.setProperty("--accent-foreground", "hsl(222.2 84% 4.9%)")
+      root.style.setProperty("--destructive", "hsl(0 84.2% 60.2%)")
+      root.style.setProperty("--destructive-foreground", "hsl(210 40% 98%)")
+      root.style.setProperty("--border", "hsl(214.3 31.8% 91.4%)")
+      root.style.setProperty("--input", "hsl(214.3 31.8% 91.4%)")
+      root.style.setProperty("--ring", "hsl(221.2 83.2% 53.3%)")
+    }
   }
 
   const handleLoginSuccess = () => {

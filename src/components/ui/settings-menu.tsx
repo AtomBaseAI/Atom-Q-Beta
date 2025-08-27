@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Settings, RefreshCw, Info, CheckCircle, AlertCircle } from "lucide-react"
 import { useSettings } from "@/components/providers/settings-provider"
-import { useSettingsRefresh } from "@/hooks/use-settings-refresh"
 import { toasts } from "@/lib/toasts"
 
 interface SettingsMenuProps {
@@ -25,18 +24,14 @@ export function SettingsMenu({
   size = "sm", 
   showLabel = false 
 }: SettingsMenuProps) {
-  const { settings } = useSettings()
-  const { refresh, isLoading, lastRefreshed } = useSettingsRefresh({
-    autoRefresh: false,
-    enabled: true,
-  })
+  const { settings, refreshSettings, isLoading } = useSettings()
 
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
     try {
-      await refresh()
+      await refreshSettings()
       toasts.success("Settings refreshed successfully")
     } catch (error) {
       toasts.error("Failed to refresh settings")
@@ -45,7 +40,7 @@ export function SettingsMenu({
     }
   }
 
-  const formatLastRefreshed = (date: Date | null) => {
+  const formatLastUpdated = (date: Date | null) => {
     if (!date) return "Never"
     
     const now = new Date()
@@ -94,7 +89,7 @@ export function SettingsMenu({
             <span>Sync: Active</span>
           </div>
           <div className="mt-1">
-            Last updated: {formatLastRefreshed(lastRefreshed)}
+            Last updated: {settings?.updatedAt ? formatLastUpdated(new Date(settings.updatedAt)) : "Never"}
           </div>
         </div>
         
