@@ -9,9 +9,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { Settings, RefreshCw, Info, CheckCircle, AlertCircle } from "lucide-react"
+import { Settings, Info, CheckCircle, AlertCircle } from "lucide-react"
 import { useSettings } from "@/components/providers/settings-provider"
-import { toasts } from "@/lib/toasts"
 
 interface SettingsMenuProps {
   variant?: "default" | "outline" | "ghost"
@@ -24,21 +23,7 @@ export function SettingsMenu({
   size = "sm", 
   showLabel = false 
 }: SettingsMenuProps) {
-  const { settings, refreshSettings, isLoading } = useSettings()
-
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    try {
-      await refreshSettings()
-      toasts.success("Settings refreshed successfully")
-    } catch (error) {
-      toasts.error("Failed to refresh settings")
-    } finally {
-      setIsRefreshing(false)
-    }
-  }
+  const { settings } = useSettings()
 
   const formatLastUpdated = (date: Date | null) => {
     if (!date) return "Never"
@@ -76,17 +61,10 @@ export function SettingsMenu({
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem onClick={handleRefresh} disabled={isLoading || isRefreshing}>
-          <RefreshCw className={`mr-2 h-4 w-4 ${(isLoading || isRefreshing) ? 'animate-spin' : ''}`} />
-          Refresh Settings
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator />
-        
         <div className="px-2 py-1.5 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <CheckCircle className="h-3 w-3 text-green-500" />
-            <span>Sync: Active</span>
+            <span>System: Active</span>
           </div>
           <div className="mt-1">
             Last updated: {settings?.updatedAt ? formatLastUpdated(new Date(settings.updatedAt)) : "Never"}

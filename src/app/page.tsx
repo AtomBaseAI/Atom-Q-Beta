@@ -90,7 +90,7 @@ function LoginPage() {
       root.style.setProperty("--card-foreground", "hsl(210 40% 98%)")
       root.style.setProperty("--popover", "hsl(222.2 84% 4.9%)")
       root.style.setProperty("--popover-foreground", "hsl(210 40% 98%)")
-      root.style.setProperty("--primary", "hsl(221.2 83.2% 53.3%)")
+      root.style.setProperty("--primary", "hsl(270 100% 50%)")
       root.style.setProperty("--primary-foreground", "hsl(210 40% 98%)")
       root.style.setProperty("--secondary", "hsl(217.2 32.6% 17.5%)")
       root.style.setProperty("--secondary-foreground", "hsl(210 40% 98%)")
@@ -110,7 +110,7 @@ function LoginPage() {
       root.style.setProperty("--card-foreground", "hsl(222.2 84% 4.9%)")
       root.style.setProperty("--popover", "hsl(0 0% 100%)")
       root.style.setProperty("--popover-foreground", "hsl(222.2 84% 4.9%)")
-      root.style.setProperty("--primary", "hsl(221.2 83.2% 53.3%)")
+      root.style.setProperty("--primary", "hsl(270 100% 50%)")
       root.style.setProperty("--primary-foreground", "hsl(210 40% 98%)")
       root.style.setProperty("--secondary", "hsl(210 40% 96%)")
       root.style.setProperty("--secondary-foreground", "hsl(222.2 84% 4.9%)")
@@ -122,7 +122,7 @@ function LoginPage() {
       root.style.setProperty("--destructive-foreground", "hsl(210 40% 98%)")
       root.style.setProperty("--border", "hsl(214.3 31.8% 91.4%)")
       root.style.setProperty("--input", "hsl(214.3 31.8% 91.4%)")
-      root.style.setProperty("--ring", "hsl(221.2 83.2% 53.3%)")
+      root.style.setProperty("--ring", "hsl(270 100% 50%)")
     }
   }
 

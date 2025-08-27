@@ -7,23 +7,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { toasts } from "@/lib/toasts"
-import { Loader2, Save, Settings, RefreshCw, CheckCircle } from "lucide-react"
+import { Loader2, Save, Settings, CheckCircle } from "lucide-react"
 import { useSettings } from "@/components/providers/settings-provider"
 import HexagonLoader from "@/components/Loader/Loading"
 import { LoadingButton } from "@/components/ui/laodaing-button"
-
-const colorOptions = [
-  { value: "blue", label: "Blue", color: "bg-blue-500" },
-  { value: "green", label: "Green", color: "bg-green-500" },
-  { value: "purple", label: "Purple", color: "bg-purple-500" },
-  { value: "red", label: "Red", color: "bg-red-500" },
-  { value: "orange", label: "Orange", color: "bg-orange-500" },
-  { value: "pink", label: "Pink", color: "bg-pink-500" },
-]
 
 export default function SettingsPage() {
   const { 
@@ -31,7 +21,6 @@ export default function SettingsPage() {
     isLoading, 
     error, 
     updateSettings, 
-    refreshSettings,
     fetchSettings 
   } = useSettings()
   
@@ -42,8 +31,7 @@ export default function SettingsPage() {
     siteDescription: "",
     maintenanceMode: false,
     allowRegistration: true,
-    enableGithubAuth: false,
-    accentColor: "blue"
+    enableGithubAuth: false
   })
 
   // Initialize form data when settings are loaded
@@ -54,8 +42,7 @@ export default function SettingsPage() {
         siteDescription: settings.siteDescription,
         maintenanceMode: settings.maintenanceMode,
         allowRegistration: settings.allowRegistration,
-        enableGithubAuth: settings.enableGithubAuth,
-        accentColor: settings.accentColor
+        enableGithubAuth: settings.enableGithubAuth
       })
       setHasChanges(false)
     }
@@ -69,8 +56,7 @@ export default function SettingsPage() {
         formData.siteDescription !== settings.siteDescription ||
         formData.maintenanceMode !== settings.maintenanceMode ||
         formData.allowRegistration !== settings.allowRegistration ||
-        formData.enableGithubAuth !== settings.enableGithubAuth ||
-        formData.accentColor !== settings.accentColor
+        formData.enableGithubAuth !== settings.enableGithubAuth
       
       setHasChanges(changed)
     }
@@ -97,10 +83,6 @@ export default function SettingsPage() {
     }
   }
 
-  const handleRefresh = async () => {
-    await refreshSettings()
-  }
-
   const handleReset = () => {
     if (settings) {
       setFormData({
@@ -108,8 +90,7 @@ export default function SettingsPage() {
         siteDescription: settings.siteDescription,
         maintenanceMode: settings.maintenanceMode,
         allowRegistration: settings.allowRegistration,
-        enableGithubAuth: settings.enableGithubAuth,
-        accentColor: settings.accentColor
+        enableGithubAuth: settings.enableGithubAuth
       })
       setHasChanges(false)
     }
@@ -125,7 +106,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header with refresh button */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
@@ -133,15 +114,6 @@ export default function SettingsPage() {
             Manage your application settings and preferences
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={isLoading}
-        >
-          <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
       </div>
 
       {/* Error display */}
@@ -156,7 +128,7 @@ export default function SettingsPage() {
         <Alert className="border-green-200 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-800">
-            Settings are up to date and synchronized across all interfaces.
+            Settings are up to date.
           </AlertDescription>
         </Alert>
       )}
@@ -198,28 +170,6 @@ export default function SettingsPage() {
               />
               <p className="text-xs text-muted-foreground">
                 Used in meta tags and SEO descriptions
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="accentColor">Accent Color</Label>
-              <Select value={formData.accentColor} onValueChange={(value) => handleInputChange("accentColor", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select accent color" />
-                </SelectTrigger>
-                <SelectContent>
-                  {colorOptions.map((color) => (
-                    <SelectItem key={color.value} value={color.value}>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full ${color.color}`} />
-                        {color.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Changes apply immediately across all interfaces
               </p>
             </div>
           </CardContent>
@@ -329,9 +279,6 @@ export default function SettingsPage() {
             <div className="space-y-1">
               <p>Last updated: {settings.updatedAt ? new Date(settings.updatedAt).toLocaleString() : 'Never'}</p>
               <p>Created: {settings.createdAt ? new Date(settings.createdAt).toLocaleString() : 'Unknown'}</p>
-              <p className="text-xs text-green-600 mt-2">
-                ✓ Settings are synchronized in real-time across all user interfaces
-              </p>
             </div>
           </CardContent>
         </Card>

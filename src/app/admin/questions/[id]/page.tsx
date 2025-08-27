@@ -485,7 +485,7 @@ export default function QuestionGroupPage() {
                           value={formData.content}
                           onChange={(value) => setFormData({ ...formData, content: value })}
                           placeholder="Enter question content..."
-                          className="min-h-[200px]"
+                          className="min-h-[150px]"
                         />
                       </div>
                       <div className="space-y-2">
@@ -496,7 +496,7 @@ export default function QuestionGroupPage() {
                           value={formData.explanation}
                           onChange={(value) => setFormData({ ...formData, explanation: value })}
                           placeholder="Enter explanation (optional)..."
-                          className="min-h-[150px]"
+                          className="min-h-[100px]"
                         />
                       </div>
                     </div>

@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
           maintenanceMode: false,
           allowRegistration: true,
           enableGithubAuth: false,
-          accentColor: 'blue',
         },
       })
     }

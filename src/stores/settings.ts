@@ -8,7 +8,6 @@ export interface Settings {
   maintenanceMode: boolean
   allowRegistration: boolean
   enableGithubAuth: boolean
-  accentColor: string
   createdAt?: string
   updatedAt?: string
 }
@@ -26,7 +25,6 @@ interface SettingsState {
   setError: (error: string | null) => void
   fetchSettings: () => Promise<void>
   clearSettings: () => void
-  refreshSettings: () => Promise<void>
 }
 
 const defaultSettings: Settings = {
@@ -35,7 +33,6 @@ const defaultSettings: Settings = {
   maintenanceMode: false,
   allowRegistration: true,
   enableGithubAuth: false,
-  accentColor: "blue",
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -97,35 +94,6 @@ export const useSettingsStore = create<SettingsState>()(
           }
         } catch (error) {
           set({ error: 'Network error while fetching settings' })
-        } finally {
-          set({ isLoading: false })
-        }
-      },
-
-      refreshSettings: async () => {
-        const state = get()
-        
-        set({ isLoading: true, error: null })
-
-        try {
-          const response = await fetch('/api/admin/settings', {
-            headers: {
-              'Cache-Control': 'no-cache',
-            },
-          })
-
-          if (response.ok) {
-            const data = await response.json()
-            set({
-              settings: data,
-              lastUpdated: Date.now(),
-              error: null,
-            })
-          } else {
-            set({ error: 'Failed to refresh settings' })
-          }
-        } catch (error) {
-          set({ error: 'Network error while refreshing settings' })
         } finally {
           set({ isLoading: false })
         }

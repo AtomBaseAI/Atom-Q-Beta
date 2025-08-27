@@ -17,8 +17,7 @@ export function useSettingsSync(options: UseSettingsSyncOptions = {}) {
   const { 
     settings, 
     isLoading, 
-    error, 
-    refreshSettings 
+    error 
   } = useSettings()
   
   const { user } = useUserStore()
@@ -29,14 +28,6 @@ export function useSettingsSync(options: UseSettingsSyncOptions = {}) {
       options.onUpdate(settings)
     }
   }, [settings, options.onUpdate])
-
-  // Only refresh settings when user changes (for role-based settings)
-  // Removed automatic refresh on mount to prevent multiple fetching
-  useEffect(() => {
-    if (user && options.enabled !== false) {
-      refreshSettings()
-    }
-  }, [user, refreshSettings, options.enabled])
 
   // Handle maintenance mode
   useEffect(() => {
@@ -50,11 +41,9 @@ export function useSettingsSync(options: UseSettingsSyncOptions = {}) {
     settings,
     isLoading,
     error,
-    refreshSettings,
     isMaintenanceMode: settings?.maintenanceMode || false,
     siteTitle: settings?.siteTitle || "Atom Q",
     siteDescription: settings?.siteDescription || "Knowledge testing portal powered by Atom Labs",
-    accentColor: settings?.accentColor || "blue",
     allowRegistration: settings?.allowRegistration ?? true,
   }
 }

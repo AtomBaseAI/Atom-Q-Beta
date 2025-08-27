@@ -81,7 +81,6 @@ export async function registerAction(formData: FormData) {
           maintenanceMode: false,
           allowRegistration: true,
           enableGithubAuth: false,
-          accentColor: 'blue',
         },
       })
     }

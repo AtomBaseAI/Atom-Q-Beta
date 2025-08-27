@@ -51,8 +51,7 @@ export async function PUT(request: Request) {
       siteDescription,
       maintenanceMode,
       allowRegistration,
-      enableGithubAuth,
-      accentColor
+      enableGithubAuth
     } = body
 
     // Get existing settings or create new
@@ -67,8 +66,7 @@ export async function PUT(request: Request) {
           siteDescription,
           maintenanceMode,
           allowRegistration,
-          enableGithubAuth,
-          accentColor
+          enableGithubAuth
         }
       })
     } else {
@@ -79,8 +77,7 @@ export async function PUT(request: Request) {
           siteDescription,
           maintenanceMode,
           allowRegistration,
-          enableGithubAuth,
-          accentColor
+          enableGithubAuth
         }
       })
     }

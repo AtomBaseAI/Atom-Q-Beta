@@ -153,7 +153,6 @@ model Settings {
   maintenanceMode   Boolean  @default(false)
   allowRegistration Boolean  @default(true)
   enableGithubAuth  Boolean  @default(false)
-  accentColor       String   @default("blue")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

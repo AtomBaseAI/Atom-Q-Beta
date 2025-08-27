@@ -2,7 +2,6 @@
 
 import React, { useEffect, createContext, useContext, useCallback } from "react"
 import { useSettingsStore, Settings } from "@/stores/settings"
-import { useAccentColor } from "./accent-color-provider"
 import { toasts } from "@/lib/toasts"
 
 interface SettingsContextType {
@@ -10,7 +9,6 @@ interface SettingsContextType {
   isLoading: boolean
   error: string | null
   updateSettings: (updates: Partial<Settings>) => Promise<void>
-  refreshSettings: () => Promise<void>
   fetchSettings: () => Promise<void>
 }
 
@@ -21,25 +19,14 @@ const SettingsContext = createContext<SettingsContextType>({
     maintenanceMode: false,
     allowRegistration: true,
     enableGithubAuth: false,
-    accentColor: "blue",
   },
   isLoading: false,
   error: null,
   updateSettings: async () => {},
-  refreshSettings: async () => {},
   fetchSettings: async () => {},
 })
 
 export const useSettings = () => useContext(SettingsContext)
-
-const colorMappings = {
-  blue: "hsl(221.2 83.2% 53.3%)",
-  green: "hsl(142.1 76.2% 36.3%)",
-  purple: "hsl(262.1 83.3% 57.8%)",
-  red: "hsl(346.8 77.2% 49.8%)",
-  orange: "hsl(24.6 95% 53.1%)",
-  pink: "hsl(330.4 81.2% 60.4%)"
-}
 
 interface SettingsProviderProps {
   children: React.ReactNode
@@ -54,11 +41,8 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     updateSettings: updateStoreSettings,
     setLoading,
     setError,
-    fetchSettings: fetchStoreSettings,
-    refreshSettings: refreshStoreSettings
+    fetchSettings: fetchStoreSettings
   } = useSettingsStore()
-  
-  const { setAccentColor } = useAccentColor()
 
   // Update document title when site title changes
   useEffect(() => {
@@ -66,20 +50,6 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       document.title = settings.siteTitle
     }
   }, [settings.siteTitle])
-
-  // Update accent color when it changes - only for admin, not for login screen
-  useEffect(() => {
-    if (settings.accentColor) {
-      setAccentColor(settings.accentColor)
-      
-      // Also update CSS custom properties directly for immediate effect
-      const root = document.documentElement
-      const primaryColor = colorMappings[settings.accentColor as keyof typeof colorMappings] || colorMappings.blue
-      
-      root.style.setProperty("--primary", primaryColor)
-      root.style.setProperty("--primary-foreground", "hsl(0 0% 98%)")
-    }
-  }, [settings.accentColor, setAccentColor])
 
   // Update meta tags when settings change
   useEffect(() => {
@@ -139,10 +109,6 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     }
   }, [settings.maintenanceMode, setSettings, setLoading, setError])
 
-  const refreshSettings = useCallback(async () => {
-    await refreshStoreSettings()
-  }, [refreshStoreSettings])
-
   const fetchSettings = useCallback(async () => {
     await fetchStoreSettings()
   }, [fetchStoreSettings])
@@ -152,7 +118,6 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     isLoading,
     error,
     updateSettings,
-    refreshSettings,
     fetchSettings,
   }
 

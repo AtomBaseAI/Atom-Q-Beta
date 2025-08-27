@@ -9,7 +9,6 @@ export const SettingsSchema = z.object({
   maintenanceMode: z.boolean(),
   allowRegistration: z.boolean(),
   enableGithubAuth: z.boolean(),
-  accentColor: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
@@ -21,7 +20,6 @@ export const UpdateSettingsSchema = z.object({
   maintenanceMode: z.boolean().optional(),
   allowRegistration: z.boolean().optional(),
   enableGithubAuth: z.boolean().optional(),
-  accentColor: z.string().optional(),
 })
 
 // User preferences schema

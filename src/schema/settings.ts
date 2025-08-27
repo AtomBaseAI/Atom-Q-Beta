@@ -10,5 +10,4 @@ export const updateSettingsSchema = z.object({
   defaultQuizTimeLimit: z.number().positive().optional(),
   maxQuizAttempts: z.number().positive().optional(),
   showLeaderboard: z.boolean(),
-  accentColor: z.string().optional(),
 })

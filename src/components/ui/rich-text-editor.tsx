@@ -50,7 +50,7 @@ export function RichTextEditor({
   value, 
   onChange, 
   placeholder = "Start typing...",
-  className 
+  className
 }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -83,7 +83,12 @@ export function RichTextEditor({
       attributes: {
         class: cn(
           "focus:outline-none",
-          "min-h-[100px]"
+          "min-h-[200px]",
+          "max-h-[300px]",
+          "overflow-y-auto",
+          "prose",
+          "prose-sm",
+          "max-w-none"
         ),
       },
     },
@@ -219,10 +224,7 @@ export function RichTextEditor({
           <PopoverContent className="w-64">
             <div className="grid grid-cols-6 gap-2">
               {[
-                '#000000', '#ffffff', '#ef4444', '#f97316', '#f59e0b', '#eab308',
-                '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
-                '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899',
-                '#f43f5e', '#6b7280', '#4b5563', '#374151', '#1f2937', '#111827'
+                '#000000', '#ffffff', '#ef4444', '#facc15', '#22c55e', '#a855f7'
               ].map((color) => (
                 <button
                   key={color}
@@ -349,7 +351,7 @@ export function RichTextEditor({
   return (
     <div className={cn("border rounded-md overflow-hidden", className)}>
       <MenuBar />
-      <div className="p-3 border rounded-md min-h-[100px] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+      <div className="p-3 border rounded-md min-h-[200px] max-h-[300px] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 overflow-hidden">
         <EditorContent editor={editor} />
       </div>
     </div>

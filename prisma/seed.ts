@@ -38,7 +38,6 @@ async function main() {
       maintenanceMode: false,
       allowRegistration: true,
       enableGithubAuth: false,
-      accentColor: 'blue',
     },
   })
 

@@ -1,25 +1,18 @@
 
 export const ACCENT_COLORS = {
-  blue: { name: "Blue", value: "#3b82f6" },
-  green: { name: "Green", value: "#10b981" },
-  purple: { name: "Purple", value: "#8b5cf6" },
-  red: { name: "Red", value: "#ef4444" },
-  orange: { name: "Orange", value: "#f97316" },
-  pink: { name: "Pink", value: "#ec4899" },
-  indigo: { name: "Indigo", value: "#6366f1" },
-  teal: { name: "Teal", value: "#14b8a6" }
+  primary: { name: "Primary", value: "#70f" }
 } as const
 
 export type AccentColorType = keyof typeof ACCENT_COLORS
 
-export function applyAccentColor(color: AccentColorType) {
-  const colorValue = ACCENT_COLORS[color]?.value || ACCENT_COLORS.blue.value
+export function applyAccentColor(color: AccentColorType = "primary") {
+  const colorValue = ACCENT_COLORS[color]?.value || ACCENT_COLORS.primary.value
   
   // Convert hex to HSL
   const hex = colorValue.replace('#', '')
-  const r = parseInt(hex.substr(0, 2), 16) / 255
-  const g = parseInt(hex.substr(2, 2), 16) / 255
-  const b = parseInt(hex.substr(4, 2), 16) / 255
+  const r = parseInt(hex.length === 3 ? hex[0] + hex[0] : hex.substr(0, 2), 16) / 255
+  const g = parseInt(hex.length === 3 ? hex[1] + hex[1] : hex.substr(2, 2), 16) / 255
+  const b = parseInt(hex.length === 3 ? hex[2] + hex[2] : hex.substr(4, 2), 16) / 255
   
   const max = Math.max(r, g, b)
   const min = Math.min(r, g, b)
