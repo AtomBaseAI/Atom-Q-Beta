@@ -35,7 +35,7 @@ const adminNavItems = [
   },
   {
     title: "Questions",
-    href: "/admin/questions",
+    href: "/admin/question-groups",
     icon: HelpCircle,
   },
   {
