@@ -258,7 +258,7 @@ export default function UserQuizPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quizzes.map((quiz) => (
-            <Card key={quiz.id} className="hover:shadow-lg transition-shadow flex flex-col h-[380px]">
+            <Card key={quiz.id} className="hover:shadow-lg transition-shadow flex flex-col h-[250px]">
               <CardHeader className="flex-shrink-0">
                 <div className="flex justify-between items-start mb-2">
                   <CardTitle className="text-lg line-clamp-2">{quiz.title}</CardTitle>
