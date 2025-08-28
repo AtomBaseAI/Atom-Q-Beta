@@ -54,7 +54,7 @@ export default withAuth(
     const token = await getToken({ req })
     const { pathname } = req.nextUrl
 
-    // Skip maintenance check for auth-related paths and admin paths
+    // Skip maintenance check for auth-related paths and login page
     const isAuthPath = pathname.startsWith('/api/auth') || 
                       pathname === '/' || 
                       pathname === '/register'
@@ -92,7 +92,16 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token
+      // Allow unauthorized access to login page and register page
+      authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl
+        // Allow access to login and register pages without authentication
+        if (pathname === '/' || pathname === '/register') {
+          return true
+        }
+        // Require authentication for all other pages
+        return !!token
+      }
     }
   }
 )

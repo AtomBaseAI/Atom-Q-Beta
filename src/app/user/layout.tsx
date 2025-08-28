@@ -27,7 +27,11 @@ export default function UserLayout({
   }, [])
 
   useEffect(() => {
-    if (status !== "loading" && (!session || session.user.role !== UserRole.USER)) {
+    if (status !== "loading" && status === "authenticated") {
+      if (!session || session.user.role !== UserRole.USER) {
+        router.push("/")
+      }
+    } else if (status === "unauthenticated") {
       router.push("/")
     }
   }, [session, status, router])

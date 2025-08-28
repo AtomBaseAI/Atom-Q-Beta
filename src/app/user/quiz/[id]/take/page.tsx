@@ -32,6 +32,7 @@ import {
 } from "lucide-react"
 import { toasts } from "@/lib/toasts"
 import { QuestionType } from "@prisma/client"
+import HexagonLoader from "@/components/Loader/Loading"
 
 interface Question {
   id: string
@@ -70,11 +71,27 @@ export default function QuizTakingPage() {
   const [showAnswer, setShowAnswer] = useState<string | null>(null)
   const [canShowAnswers, setCanShowAnswers] = useState(false)
   const [checkedAnswers, setCheckedAnswers] = useState<Set<string>>(new Set())
+  const [loadingProgress, setLoadingProgress] = useState(0)
+  const [questionsLoaded, setQuestionsLoaded] = useState<Set<number>>(new Set())
   const paginationContainerRef = useRef<HTMLDivElement>(null)
 
   const fetchQuiz = useCallback(async () => {
     try {
+      // Simulate progressive loading for better UX
+      const progressInterval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return prev
+          }
+          return prev + Math.random() * 20
+        })
+      }, 100)
+
       const response = await fetch(`/api/user/quiz/${params.id}/attempt`)
+      clearInterval(progressInterval)
+      setLoadingProgress(100)
+      
       if (response.ok) {
         const data = await response.json()
         
@@ -105,9 +122,28 @@ export default function QuizTakingPage() {
         setTimeRemaining(data.timeRemaining || 0)
         setCanShowAnswers(data.quiz.showAnswers || false)
         
+        // Preload first few questions for better performance
+        const initialQuestionsToLoad = Math.min(5, data.quiz.questions.length)
+        const loadedSet = new Set<number>()
+        for (let i = 0; i < initialQuestionsToLoad; i++) {
+          loadedSet.add(i)
+        }
+        setQuestionsLoaded(loadedSet)
+        
         // Set initial answers if any exist
         if (data.answers) {
           setAnswers(data.answers)
+        }
+        
+        // Lazy load remaining questions in background
+        if (data.quiz.questions.length > initialQuestionsToLoad) {
+          setTimeout(() => {
+            const remainingSet = new Set(loadedSet)
+            for (let i = initialQuestionsToLoad; i < data.quiz.questions.length; i++) {
+              remainingSet.add(i)
+            }
+            setQuestionsLoaded(remainingSet)
+          }, 1000)
         }
       } else {
         const error = await response.json()
@@ -120,7 +156,10 @@ export default function QuizTakingPage() {
       toasts.error("Failed to load quiz")
       router.push("/user/quiz")
     } finally {
-      setLoading(false)
+      // Add a small delay for smooth transition
+      setTimeout(() => {
+        setLoading(false)
+      }, 300)
     }
   }, [params.id, router])
 
@@ -275,17 +314,27 @@ export default function QuizTakingPage() {
 
   const nextQuestion = () => {
     if (currentQuestionIndex < (quiz?.questions.length || 0) - 1) {
-      setCurrentQuestionIndex(prev => prev + 1)
+      goToQuestion(currentQuestionIndex + 1)
     }
   }
 
   const previousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1)
+      goToQuestion(currentQuestionIndex - 1)
     }
   }
 
   const goToQuestion = (index: number) => {
+    // Preload nearby questions for better performance
+    const preloadRange = 2
+    const newLoadedSet = new Set(questionsLoaded)
+    
+    // Load current question and nearby ones
+    for (let i = Math.max(0, index - preloadRange); i <= Math.min((quiz?.questions.length || 0) - 1, index + preloadRange); i++) {
+      newLoadedSet.add(i)
+    }
+    
+    setQuestionsLoaded(newLoadedSet)
     setCurrentQuestionIndex(index)
   }
 
@@ -400,6 +449,10 @@ export default function QuizTakingPage() {
     return answers[question.id]
   }
 
+  const isQuestionLoaded = (questionIndex: number) => {
+    return questionsLoaded.has(questionIndex)
+  }
+
   const getTimeColor = () => {
     const percentage = (timeRemaining / ((quiz?.timeLimit || 0) * 60 || 1)) * 100
     if (percentage > 50) return "text-green-500"
@@ -415,12 +468,44 @@ export default function QuizTakingPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
+          <div className="mb-6">
+            <HexagonLoader size={120} />
+          </div>
           <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 border-4 border-primary dark:border-sidebar-primary border-t-transparent rounded-full mx-auto mb-4"
-          />
-          <p className="text-lg font-medium">Loading quiz...</p>
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-4"
+          >
+            <p className="text-xl font-semibold text-primary">Preparing your quiz...</p>
+            <p className="text-muted-foreground">Loading questions and setting up your experience</p>
+            
+            {/* Progress bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Loading progress</span>
+                <span>{Math.round(loadingProgress)}%</span>
+              </div>
+              <div className="w-64 h-2 bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-primary rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${loadingProgress}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+            </div>
+            
+            {/* Loading tips */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="text-sm text-muted-foreground max-w-xs"
+            >
+              💡 Tip: Take your time to read each question carefully before answering.
+            </motion.div>
+          </motion.div>
         </motion.div>
       </div>
     )
@@ -435,6 +520,33 @@ export default function QuizTakingPage() {
   }
 
   const currentQuestion = quiz.questions[currentQuestionIndex]
+  
+  // Show loading state if question isn't loaded yet
+  if (!isQuestionLoaded(currentQuestionIndex)) {
+    return (
+      <div className="min-h-screen bg-background dark:bg-background flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="mb-6">
+            <HexagonLoader size={80} />
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-2"
+          >
+            <p className="text-lg font-semibold text-primary">Loading question...</p>
+            <p className="text-muted-foreground">Preparing question {currentQuestionIndex + 1}</p>
+          </motion.div>
+        </motion.div>
+      </div>
+    )
+  }
+  
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100
   const isAnswered = currentQuestion.type === QuestionType.MULTI_SELECT 
     ? multiSelectAnswers[currentQuestion.id]?.length > 0 

@@ -215,6 +215,48 @@ export default function QuizUsersPage() {
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  // Filtered available users for enrollment dialog
+  const filteredAvailableUsers = availableUsers.filter(user =>
+    user.name.toLowerCase().includes(enrollSearchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(enrollSearchTerm.toLowerCase())
+  ).filter(user =>
+    enrollCampusFilter === "all" || user.campus === enrollCampusFilter
+  ).filter(user =>
+    enrollTagFilter === "all" || (user.tags && user.tags.includes(enrollTagFilter))
+  )
+
+  // Helper functions for user selection
+  const hasActiveEnrollFilters = () => {
+    return enrollSearchTerm !== "" || enrollCampusFilter !== "all" || enrollTagFilter !== "all"
+  }
+
+  const selectAllUsers = () => {
+    const allUserIds = availableUsers.map(u => u.id)
+    setSelectedUsers(allUserIds)
+  }
+
+  const selectFilteredUsers = () => {
+    const filteredUserIds = filteredAvailableUsers.map(u => u.id)
+    setSelectedUsers(filteredUserIds)
+  }
+
+  const clearUserSelection = () => {
+    setSelectedUsers([])
+  }
+
+  // Effect to update selection when filters change
+  useEffect(() => {
+    if (selectedUsers.length > 0) {
+      const visibleUserIds = filteredAvailableUsers.map(u => u.id)
+      const updatedSelection = selectedUsers.filter(id => 
+        visibleUserIds.includes(id)
+      )
+      if (updatedSelection.length !== selectedUsers.length) {
+        setSelectedUsers(updatedSelection)
+      }
+    }
+  }, [enrollSearchTerm, enrollCampusFilter, enrollTagFilter])
+
   // Get unique campuses and tags for filters
   const uniqueCampuses = useMemo(() => {
     const campuses = users.map(user => user.campus).filter(Boolean) as string[]
@@ -467,10 +509,35 @@ export default function QuizUsersPage() {
                 </div>
               </div>
 
+              {/* Selection Controls */}
+              <div className="flex flex-wrap gap-2 items-center justify-between">
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={hasActiveEnrollFilters() ? selectFilteredUsers : selectAllUsers}
+                    disabled={filteredAvailableUsers.length === 0}
+                  >
+                    {hasActiveEnrollFilters() ? `Select Filtered (${filteredAvailableUsers.length})` : `Select All (${availableUsers.length})`}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearUserSelection}
+                    disabled={selectedUsers.length === 0}
+                  >
+                    Clear Selection ({selectedUsers.length})
+                  </Button>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {selectedUsers.length} of {filteredAvailableUsers.length} selected
+                </div>
+              </div>
+
               {/* Users List */}
               <div className="min-h-[100%] h-full overflow-y-scroll space-y-2 w-full">
-                {availableUsers.length > 0 ? (
-                  availableUsers.map((user) => (
+                {filteredAvailableUsers.length > 0 ? (
+                  filteredAvailableUsers.map((user) => (
                     <div key={user.id} className="flex flex-row items-start space-x-3 p-3 border rounded hover:bg-muted/50">
                       <input
                         type="checkbox"
@@ -518,7 +585,7 @@ export default function QuizUsersPage() {
 
               {selectedUsers.length > 0 && (
                 <div className="text-sm text-muted-foreground">
-                  {selectedUsers.length} user(s) selected
+                  {selectedUsers.length} user(s) selected for enrollment
                 </div>
               )}
             </div>

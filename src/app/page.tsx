@@ -48,27 +48,27 @@ function LoginPage() {
     }
   }, [searchParams])
 
-  // Redirect based on role when session is available
+  // Redirect based on role when session is available and authenticated
   useEffect(() => {
-    if (session) {
+    if (status === "authenticated" && session) {
       if (session.user.role === 'ADMIN') {
         router.push("/admin")
       } else {
         router.push("/user")
       }
     }
-  }, [session, router])
+  }, [session, status, router])
 
-  // Also redirect if user is in store (client-side caching)
+  // Also redirect if user is in store (client-side caching) and no session
   useEffect(() => {
-    if (!session && user?.role) {
+    if (status === "unauthenticated" && user?.role) {
       if (user.role === 'ADMIN') {
         router.push("/admin")
       } else {
         router.push("/user")
       }
     }
-  }, [user, session, router])
+  }, [user, status, router])
 
   // Handle maintenance mode
   useEffect(() => {

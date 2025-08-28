@@ -21,10 +21,22 @@ export async function POST(
     const userId = session.user.id
     const { id } = await params
 
-    // Check if quiz exists and is active
+    // Add cache control headers
+    const response = new NextResponse()
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+
+    // Check if quiz exists and is active with optimized query
     const quiz = await db.quiz.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        startTime: true,
+        endTime: true,
+        maxAttempts: true,
         quizQuestions: {
           select: {
             points: true
@@ -76,8 +88,8 @@ export async function POST(
       )
     }
 
-    // Check if user has access to this quiz
-    const hasAccess = await db.quizUser.findFirst({
+    // Check if user has access to this quiz with optimized query
+    const hasAccess = await db.quizUser.count({
       where: {
         quizId: id,
         userId
@@ -85,18 +97,18 @@ export async function POST(
     })
 
     // If quiz has specific user assignments, check if user is assigned
-    const assignedUsers = await db.quizUser.findMany({
+    const assignedUsersCount = await db.quizUser.count({
       where: { quizId: id }
     })
 
-    if (assignedUsers.length > 0 && !hasAccess) {
+    if (assignedUsersCount > 0 && hasAccess === 0) {
       return NextResponse.json(
         { message: "You don't have access to this quiz" },
         { status: 403 }
       )
     }
 
-    // Check if user has reached maximum attempts (only if maxAttempts is not null/unlimited)
+    // Check if user has reached maximum attempts with optimized query
     if (quiz.maxAttempts !== null) {
       const userAttemptCount = await db.quizAttempt.count({
         where: {
@@ -114,26 +126,34 @@ export async function POST(
       }
     }
 
-    // Check for any existing attempt (in progress or completed)
+    // Check for any existing attempt with optimized query
     const existingAttempt = await db.quizAttempt.findFirst({
       where: {
         quizId: id,
-        userId
+        userId,
+        status: AttemptStatus.IN_PROGRESS
       },
-      orderBy: {
-        createdAt: 'desc'
+      select: {
+        id: true,
+        status: true
       }
     })
 
-    // If there's an in-progress attempt, return it
-    if (existingAttempt && existingAttempt.status === AttemptStatus.IN_PROGRESS) {
+    // If there's an in-progress attempt, return it immediately
+    if (existingAttempt) {
       return NextResponse.json({
         message: "Quiz already in progress",
         attemptId: existingAttempt.id
+      }, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
     }
 
-    // Calculate total points
+    // Calculate total points efficiently
     const totalPoints = quiz.quizQuestions.reduce((sum, qq) => sum + qq.points, 0)
 
     // Create new attempt
@@ -144,6 +164,10 @@ export async function POST(
         status: AttemptStatus.IN_PROGRESS,
         startedAt: new Date(),
         totalPoints: totalPoints
+      },
+      select: {
+        id: true,
+        status: true
       }
     })
 
@@ -158,6 +182,12 @@ export async function POST(
     return NextResponse.json({
       message: "Quiz started successfully",
       attemptId: attempt.id
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     })
   } catch (error) {
     console.error("Error starting quiz:", error)

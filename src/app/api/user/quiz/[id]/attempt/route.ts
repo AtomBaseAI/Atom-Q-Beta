@@ -21,7 +21,13 @@ export async function GET(
     const { id } = await params
     const userId = session.user.id
 
-    // Find the active attempt
+    // Add cache control headers for better performance
+    const response = new NextResponse()
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+
+    // Find the active attempt with optimized query
     const attempt = await db.quizAttempt.findFirst({
       where: {
         quizId: id,
@@ -33,7 +39,18 @@ export async function GET(
           include: {
             quizQuestions: {
               include: {
-                question: true // Get all question fields
+                question: {
+                  select: {
+                    id: true,
+                    title: true,
+                    content: true,
+                    type: true,
+                    options: true,
+                    correctAnswer: true,
+                    explanation: true,
+                    difficulty: true
+                  }
+                }
               },
               orderBy: {
                 order: "asc"
@@ -75,7 +92,7 @@ export async function GET(
     const timeLimit = (attempt.quiz.timeLimit || 0) * 60 // Convert minutes to seconds
     const timeRemaining = Math.max(0, timeLimit - timeElapsed)
 
-    // Format questions for the frontend with proper validation
+    // Format questions for the frontend with optimized validation
     const questions = attempt.quiz.quizQuestions
       .filter(qq => qq.question) // Filter out null questions
       .map((qq, index) => {
@@ -146,7 +163,7 @@ export async function GET(
       questions: questions
     }
 
-    return NextResponse.json({
+    const responseData = {
       attemptId: attempt.id,
       quiz: quizData,
       timeRemaining: timeRemaining,
@@ -154,6 +171,14 @@ export async function GET(
         acc[answer.questionId] = answer.userAnswer
         return acc
       }, {} as Record<string, string>)
+    }
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     })
   } catch (error) {
     console.error("Error fetching quiz attempt:", error)

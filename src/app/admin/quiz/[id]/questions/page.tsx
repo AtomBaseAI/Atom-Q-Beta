@@ -861,6 +861,39 @@ export default function QuizQuestionsPage() {
     return matchesSearch && matchesDifficulty && matchesGroup
   })
 
+  // Helper functions for selection
+  const hasActiveFilters = () => {
+    return popupSearchTerm !== "" || popupDifficultyFilter !== "all" || popupGroupFilter !== "all"
+  }
+
+  const selectAllQuestions = () => {
+    const allQuestionIds = availableQuestions.map(q => q.id)
+    setSelectedQuestionsToAdd(allQuestionIds)
+  }
+
+  const selectFilteredQuestions = () => {
+    const filteredQuestionIds = popupFilteredQuestions.map(q => q.id)
+    setSelectedQuestionsToAdd(filteredQuestionIds)
+  }
+
+  const clearSelection = () => {
+    setSelectedQuestionsToAdd([])
+  }
+
+  // Effect to update selection when filters change
+  // This ensures selected items are only those visible in current filter
+  useEffect(() => {
+    if (selectedQuestionsToAdd.length > 0) {
+      const visibleQuestionIds = popupFilteredQuestions.map(q => q.id)
+      const updatedSelection = selectedQuestionsToAdd.filter(id => 
+        visibleQuestionIds.includes(id)
+      )
+      if (updatedSelection.length !== selectedQuestionsToAdd.length) {
+        setSelectedQuestionsToAdd(updatedSelection)
+      }
+    }
+  }, [popupSearchTerm, popupDifficultyFilter, popupGroupFilter])
+
   if (loading) {
     return <div className="flex items-center justify-center h-[80vh] "><HexagonLoader size={80} /></div>
   }
@@ -1075,6 +1108,31 @@ export default function QuizQuestionsPage() {
                   )}
                 </div>
               )}
+            </div>
+            
+            {/* Selection Controls */}
+            <div className="flex flex-wrap gap-2 items-center justify-between">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={hasActiveFilters() ? selectFilteredQuestions : selectAllQuestions}
+                  disabled={popupFilteredQuestions.length === 0}
+                >
+                  {hasActiveFilters() ? `Select Filtered (${popupFilteredQuestions.length})` : `Select All (${availableQuestions.length})`}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearSelection}
+                  disabled={selectedQuestionsToAdd.length === 0}
+                >
+                  Clear Selection ({selectedQuestionsToAdd.length})
+                </Button>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {selectedQuestionsToAdd.length} of {popupFilteredQuestions.length} selected
+              </div>
             </div>
             
             <div className="grid gap-3">
