@@ -120,7 +120,7 @@ export default function QuizTakingPage() {
         
         setIsRestoringProgress(false)
         setLoading(false)
-        toasts.success("Quiz progress restored from local storage")
+        toasts.success("Quiz progress restored")
         return
       }
 
