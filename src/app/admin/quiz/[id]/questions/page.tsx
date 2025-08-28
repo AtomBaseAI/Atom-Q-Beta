@@ -577,7 +577,7 @@ export default function QuizQuestionsPage() {
               }
 
               // Create the question
-              const response = await fetch("/api/admin/questions", {
+              const response = await fetch("/api/admin/question-groups", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

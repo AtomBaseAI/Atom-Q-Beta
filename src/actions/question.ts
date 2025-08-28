@@ -39,7 +39,7 @@ export async function createQuestionAction(formData: FormData) {
       }
     })
 
-    revalidatePath('/admin/questions')
+    revalidatePath('/admin/question-groups')
     return {
       success: true,
       message: 'Question created successfully',
@@ -87,7 +87,7 @@ export async function updateQuestionAction(questionId: string, formData: FormDat
       }
     })
 
-    revalidatePath('/admin/questions')
+    revalidatePath('/admin/question-groups')
     return {
       success: true,
       message: 'Question updated successfully',
@@ -105,7 +105,7 @@ export async function deleteQuestionAction(questionId: string) {
       where: { id: questionId }
     })
 
-    revalidatePath('/admin/questions')
+    revalidatePath('/admin/question-groups')
     return {
       success: true,
       message: 'Question deleted successfully',

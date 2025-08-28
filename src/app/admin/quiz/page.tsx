@@ -298,7 +298,7 @@ export default function QuizzesPage() {
               </DropdownMenuItem> */}
               <DropdownMenuItem onClick={() => router.push(`/admin/quiz/${quiz.id}/questions`)}>
                 <FileQuestion className="mr-2 h-4 w-4" />
-                Questions
+                Manage Questions
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push(`/admin/quiz/${quiz.id}/users`)}>
                 <Users className="mr-2 h-4 w-4" />

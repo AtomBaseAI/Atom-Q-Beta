@@ -265,7 +265,7 @@ export default function QuestionsPage() {
                         size="sm"
                         asChild
                       >
-                        <a href={`/admin/questions/${group.id}`}>
+                        <a href={`/admin/question-groups/${group.id}/questions`}>
                           <Eye className="h-4 w-4" />
                         </a>
                       </Button>
