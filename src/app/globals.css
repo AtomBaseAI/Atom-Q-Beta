@@ -286,3 +286,8 @@
   pointer-events: none;
   height: 0;
 }
+
+::view-transition-old(root), ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}

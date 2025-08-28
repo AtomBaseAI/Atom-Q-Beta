@@ -18,6 +18,7 @@ import { registerAction } from "@/actions/auth"
 import type { z } from "zod"
 import { LoadingButton } from "@/components/ui/laodaing-button"
 import { useSettingsSync } from "@/hooks/use-settings-sync"
+import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
 
 type RegisterFormData = z.infer<typeof registerSchema>
 
@@ -58,8 +59,8 @@ export default function RegisterPage() {
             </Alert>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              className="w-full" 
+            <Button
+              className="w-full"
               onClick={() => router.push("/")}
             >
               Back to Login
@@ -119,16 +120,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="absolute top-4 right-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="h-9 w-9"
-        >
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
+        <AnimatedThemeToggler />
       </div>
 
       <Card className="w-full max-w-md">
@@ -146,7 +138,7 @@ export default function RegisterPage() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              
+
               <FormField
                 control={form.control}
                 name="name"
@@ -218,9 +210,9 @@ export default function RegisterPage() {
               />
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <LoadingButton 
-                type="submit" 
-                className="w-full" 
+              <LoadingButton
+                type="submit"
+                className="w-full"
                 isLoading={isLoading}
                 loadingText="Creating account..."
               >
