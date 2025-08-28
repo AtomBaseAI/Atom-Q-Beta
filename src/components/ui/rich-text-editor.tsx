@@ -86,9 +86,8 @@ export function RichTextEditor({
           "min-h-[200px]",
           "max-h-[300px]",
           "overflow-y-auto",
-          "prose",
-          "prose-sm",
-          "max-w-none"
+          "p-3",
+          "leading-relaxed"
         ),
       },
     },
@@ -351,7 +350,7 @@ export function RichTextEditor({
   return (
     <div className={cn("border rounded-md overflow-hidden", className)}>
       <MenuBar />
-      <div className="p-3 border rounded-md min-h-[200px] max-h-[300px] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 overflow-hidden">
+      <div className="border rounded-md min-h-[200px] max-h-[300px] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 overflow-hidden">
         <EditorContent editor={editor} />
       </div>
     </div>

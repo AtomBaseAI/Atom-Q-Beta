@@ -20,7 +20,6 @@ export function useSettingsRefresh(options: UseSettingsRefreshOptions = {}) {
     settings, 
     isLoading, 
     error, 
-    refreshSettings,
     fetchSettings 
   } = useSettings()
   
@@ -38,14 +37,14 @@ export function useSettingsRefresh(options: UseSettingsRefreshOptions = {}) {
     if (!enabled) return
     
     try {
-      await refreshSettings()
+      await fetchSettings()
       if (onRefresh && settings) {
         onRefresh(settings)
       }
     } catch (error) {
       console.error('Failed to refresh settings:', error)
     }
-  }, [refreshSettings, enabled, onRefresh, settings])
+  }, [fetchSettings, enabled, onRefresh, settings])
 
   // Auto-refresh functionality - disabled by default
   useEffect(() => {
@@ -76,7 +75,6 @@ export function useSettingsRefresh(options: UseSettingsRefreshOptions = {}) {
     isLoading,
     error,
     refresh,
-    refreshSettings,
     fetchSettings,
     isAutoRefreshEnabled: autoRefresh,
     lastRefreshed: settings?.updatedAt ? new Date(settings.updatedAt) : null,

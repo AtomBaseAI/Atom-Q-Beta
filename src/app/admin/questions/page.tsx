@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Switch } from "@/components/ui/switch"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
@@ -35,7 +35,7 @@ interface QuestionGroup {
 export default function QuestionsPage() {
   const [questionGroups, setQuestionGroups] = useState<QuestionGroup[]>([])
   const [loading, setLoading] = useState(true)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [editingGroup, setEditingGroup] = useState<QuestionGroup | null>(null)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
   const [submitLoading, setSubmitLoading] = useState(false)
@@ -84,7 +84,7 @@ export default function QuestionsPage() {
 
       if (response.ok) {
         await fetchQuestionGroups()
-        setIsDialogOpen(false)
+        setIsSheetOpen(false)
         resetForm()
       } else {
         const errorData = await response.json()
@@ -105,7 +105,7 @@ export default function QuestionsPage() {
       description: group.description || "",
       isActive: group.isActive
     })
-    setIsDialogOpen(true)
+    setIsSheetOpen(true)
   }
 
   const handleDelete = async (id: string) => {
@@ -151,26 +151,26 @@ export default function QuestionsPage() {
             Manage question groups and organize your questions
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
             <Button onClick={resetForm}>
               <Plus className="mr-2 h-4 w-4" />
               New Group
             </Button>
-          </DialogTrigger>
-          <DialogContent className="dialog-fullscreen">
+          </SheetTrigger>
+          <SheetContent className="w-[400px] sm:w-[540px]">
             <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>
+              <SheetHeader>
+                <SheetTitle>
                   {editingGroup ? "Edit Question Group" : "Create Question Group"}
-                </DialogTitle>
-                <DialogDescription>
+                </SheetTitle>
+                <SheetDescription>
                   {editingGroup 
                     ? "Update the question group details below."
                     : "Create a new question group to organize your questions."
                   }
-                </DialogDescription>
-              </DialogHeader>
+                </SheetDescription>
+              </SheetHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="name" className="text-right">
@@ -207,7 +207,7 @@ export default function QuestionsPage() {
                   />
                 </div>
               </div>
-              <DialogFooter>
+              <SheetFooter>
                 <LoadingButton 
                   type="submit" 
                   isLoading={submitLoading}
@@ -215,10 +215,10 @@ export default function QuestionsPage() {
                 >
                   {editingGroup ? "Update" : "Create"}
                 </LoadingButton>
-              </DialogFooter>
+              </SheetFooter>
             </form>
-          </DialogContent>
-        </Dialog>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <Card>
