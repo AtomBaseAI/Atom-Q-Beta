@@ -1,11 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { QuestionType } from '@prisma/client'
 
 interface QuizQuestion {
   id: string
   title: string
   content: string
-  type: string
+  type: QuestionType
   options: string[]
   correctAnswer: string
   explanation: string
