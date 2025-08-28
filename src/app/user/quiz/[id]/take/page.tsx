@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,7 @@ import {
 import { toasts } from "@/lib/toasts"
 import { QuestionType } from "@prisma/client"
 import HexagonLoader from "@/components/Loader/Loading"
+import { useQuizProgressStore } from "@/stores/quiz-progress"
 
 interface Question {
   id: string
@@ -58,6 +59,7 @@ interface Quiz {
 export default function QuizTakingPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { data: session } = useSession()
   const [quiz, setQuiz] = useState<Quiz | null>(null)
   const [attemptId, setAttemptId] = useState<string>("")
@@ -73,10 +75,55 @@ export default function QuizTakingPage() {
   const [checkedAnswers, setCheckedAnswers] = useState<Set<string>>(new Set())
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [questionsLoaded, setQuestionsLoaded] = useState<Set<number>>(new Set())
+  const [isRestoringProgress, setIsRestoringProgress] = useState(false)
   const paginationContainerRef = useRef<HTMLDivElement>(null)
+
+  // Quiz progress store
+  const {
+    startQuiz,
+    updateProgress,
+    saveAnswer,
+    saveMultiSelectAnswer,
+    navigateToQuestion,
+    updateTimeRemaining,
+    endQuiz,
+    getProgress,
+    isQuizInProgress,
+    getCurrentQuestion,
+    getAnswer,
+    getMultiSelectAnswer
+  } = useQuizProgressStore()
 
   const fetchQuiz = useCallback(async () => {
     try {
+      // Check if there's existing progress in localStorage first
+      const existingProgress = getProgress(params.id as string)
+      const attemptFromUrl = searchParams.get('attempt')
+      
+      if (existingProgress && existingProgress.attemptId === attemptFromUrl) {
+        // Restore progress from localStorage
+        setIsRestoringProgress(true)
+        setQuiz(existingProgress.quizData)
+        setAttemptId(existingProgress.attemptId)
+        setCurrentQuestionIndex(existingProgress.currentQuestionIndex)
+        setAnswers(existingProgress.answers)
+        setMultiSelectAnswers(existingProgress.multiSelectAnswers)
+        setTimeRemaining(existingProgress.timeRemaining)
+        setCanShowAnswers(existingProgress.quizData.showAnswers || false)
+        
+        // Restore loaded questions
+        const loadedSet = new Set<number>()
+        for (let i = 0; i < existingProgress.quizData.questions.length; i++) {
+          loadedSet.add(i)
+        }
+        setQuestionsLoaded(loadedSet)
+        
+        setIsRestoringProgress(false)
+        setLoading(false)
+        toasts.success("Quiz progress restored from local storage")
+        return
+      }
+
       // Simulate progressive loading for better UX
       const progressInterval = setInterval(() => {
         setLoadingProgress(prev => {
@@ -117,6 +164,9 @@ export default function QuizTakingPage() {
           return
         }
         
+        // Initialize quiz in progress store
+        startQuiz(params.id as string, data.attemptId, data.quiz, data.timeRemaining || 0)
+        
         setQuiz(data.quiz)
         setAttemptId(data.attemptId)
         setTimeRemaining(data.timeRemaining || 0)
@@ -133,6 +183,10 @@ export default function QuizTakingPage() {
         // Set initial answers if any exist
         if (data.answers) {
           setAnswers(data.answers)
+          // Save initial answers to store
+          Object.entries(data.answers).forEach(([questionId, answer]) => {
+            saveAnswer(questionId, answer as string)
+          })
         }
         
         // Lazy load remaining questions in background
@@ -161,7 +215,7 @@ export default function QuizTakingPage() {
         setLoading(false)
       }, 300)
     }
-  }, [params.id, router])
+  }, [params.id, router, searchParams, startQuiz, saveAnswer, getProgress])
 
   useEffect(() => {
     if (session) {
@@ -174,7 +228,11 @@ export default function QuizTakingPage() {
     if (timeRemaining > 0 && !submitting) {
       const timer = setInterval(() => {
         setTimeRemaining((prev) => {
-          if (prev <= 1) {
+          const newTime = prev - 1
+          // Update persistence store with new time
+          updateTimeRemaining(newTime)
+          
+          if (newTime <= 0) {
             // Auto-submit when time runs out
             ;(async () => {
               try {
@@ -205,6 +263,8 @@ export default function QuizTakingPage() {
                 if (response.ok) {
                   const result = await response.json()
                   toasts.success("Time's up! Quiz submitted automatically.")
+                  // Clear persisted data after successful submission
+                  endQuiz()
                   router.push(`/user/quiz/${params.id}/result?attemptId=${attemptId}`)
                 } else {
                   const error = await response.json()
@@ -218,13 +278,13 @@ export default function QuizTakingPage() {
             })()
             return 0
           }
-          return prev - 1
+          return newTime
         })
       }, 1000)
 
       return () => clearInterval(timer)
     }
-  }, [timeRemaining, submitting, attemptId, answers, params.id, router])
+  }, [timeRemaining, submitting, attemptId, answers, multiSelectAnswers, params.id, router, updateTimeRemaining, endQuiz])
 
   // Auto-scroll pagination to active question
   useEffect(() => {
@@ -273,10 +333,15 @@ export default function QuizTakingPage() {
     if (checkedAnswers.has(questionId)) {
       return
     }
+    
+    // Update local state
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer
     }))
+    
+    // Save to persistence store
+    saveAnswer(questionId, answer)
   }
 
   const handleMultiSelectAnswerChange = (questionId: string, option: string, checked: boolean) => {
@@ -294,6 +359,9 @@ export default function QuizTakingPage() {
       } else {
         newAnswers = currentAnswers.filter(ans => ans !== option)
       }
+      
+      // Save to persistence store
+      saveMultiSelectAnswer(questionId, newAnswers)
       
       return {
         ...prev,
@@ -336,6 +404,9 @@ export default function QuizTakingPage() {
     
     setQuestionsLoaded(newLoadedSet)
     setCurrentQuestionIndex(index)
+    
+    // Save navigation to persistence store
+    navigateToQuestion(index)
   }
 
   const handleSubmit = async () => {
@@ -368,6 +439,8 @@ export default function QuizTakingPage() {
       if (response.ok) {
         const result = await response.json()
         toasts.success("Quiz submitted successfully!")
+        // Clear persisted data after successful submission
+        endQuiz()
         router.push(`/user/quiz/${params.id}/result?attemptId=${attemptId}`)
       } else {
         const error = await response.json()

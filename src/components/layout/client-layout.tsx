@@ -25,7 +25,7 @@ export default function ClientLayout({
       >
         <AccentColorProvider>
           <SettingsProvider>
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               <motion.div
                 key={pathname}
                 initial={{ opacity: 0, y: 20 }}

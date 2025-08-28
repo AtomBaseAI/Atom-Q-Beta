@@ -59,16 +59,8 @@ function LoginPage() {
     }
   }, [session, status, router])
 
-  // Also redirect if user is in store (client-side caching) and no session
-  useEffect(() => {
-    if (status === "unauthenticated" && user?.role) {
-      if (user.role === 'ADMIN') {
-        router.push("/admin")
-      } else {
-        router.push("/user")
-      }
-    }
-  }, [user, status, router])
+  // Remove the problematic redirect that uses user store without session
+  // This was causing the infinite redirect loop after logout
 
   // Handle maintenance mode
   useEffect(() => {

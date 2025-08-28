@@ -53,6 +53,9 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const handleSignOut = async () => {
     try {
+      // Clear user store first to prevent redirect loops
+      setUser(null)
+      // Then sign out from NextAuth
       await signOut({ callbackUrl: "/" })
       toasts.success("Signed out successfully")
     } catch (error) {

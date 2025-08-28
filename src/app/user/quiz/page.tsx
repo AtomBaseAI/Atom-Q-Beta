@@ -258,16 +258,16 @@ export default function UserQuizPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quizzes.map((quiz) => (
-            <Card key={quiz.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
+            <Card key={quiz.id} className="hover:shadow-lg transition-shadow flex flex-col h-[380px]">
+              <CardHeader className="flex-shrink-0">
                 <div className="flex justify-between items-start mb-2">
-                  <CardTitle className="text-lg">{quiz.title}</CardTitle>
+                  <CardTitle className="text-lg line-clamp-2">{quiz.title}</CardTitle>
                   {getStatusBadge(quiz.attemptStatus)}
                 </div>
-                <CardDescription>{quiz.description}</CardDescription>
+                <CardDescription className="line-clamp-2">{quiz.description}</CardDescription>
               </CardHeader>
 
-              <CardContent className="space-y-4">
+              <CardContent className="flex-grow space-y-4">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center">
                     <FileText className="w-4 h-4 mr-1" />
@@ -336,7 +336,7 @@ export default function UserQuizPage() {
                 )}
               </CardContent>
 
-              <CardFooter>
+              <CardFooter className="flex-shrink-0">
                 <LoadingButton
                   onClick={() => handleStartQuiz(quiz.id)}
                   disabled={!quiz.canAttempt}

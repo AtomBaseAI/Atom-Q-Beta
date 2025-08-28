@@ -16,6 +16,7 @@ import { useTheme } from "next-themes"
 import { toast } from "sonner"
 import { useSettings } from "@/components/providers/settings-provider"
 import { SettingsMenu } from "@/components/ui/settings-menu"
+import { useUserStore } from "@/stores/user"
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -25,8 +26,12 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { data: session } = useSession()
   const { theme, setTheme } = useTheme()
   const { settings } = useSettings()
+  const { setUser } = useUserStore()
 
   const handleSignOut = async () => {
+    // Clear user store first to prevent redirect loops
+    setUser(null)
+    // Then sign out from NextAuth
     await signOut({ callbackUrl: "/" })
     toast.success("Logged out successfully")
   }
