@@ -131,7 +131,8 @@ export default function QuizTakingPage() {
             clearInterval(progressInterval)
             return prev
           }
-          return prev + Math.random() * 20
+          // return prev + Math.random() * 20
+          return Math.min(prev + Math.random() * 20, 100)
         })
       }, 100)
 
