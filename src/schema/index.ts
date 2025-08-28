@@ -10,9 +10,3 @@ export * from './quiz'
 
 // Question schemas
 export * from './question'
-
-// Attempt schemas
-export * from './attempt'
-
-// Settings schemas
-export * from './settings'
