@@ -170,9 +170,9 @@ function SortableQuestion({
       <TableCell>
         <div>
           <div className="font-medium">{question.title}</div>
-          <div className="text-sm text-muted-foreground">
+          {/* <div className="text-sm text-muted-foreground">
             <RichTextDisplay content={question.content} />
-          </div>
+          </div> */}
         </div>
       </TableCell>
       <TableCell>
@@ -202,13 +202,7 @@ function SortableQuestion({
           >
             <Eye className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(question)}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
