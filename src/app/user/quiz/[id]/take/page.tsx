@@ -14,6 +14,8 @@ import { Progress } from "@/components/ui/progress"
 import { RichTextDisplay } from "@/components/ui/rich-text-display"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 import { 
   Clock, 
   ChevronLeft, 
@@ -28,7 +30,8 @@ import {
   Brain,
   Zap,
   HelpCircle,
-  CheckCircle
+  CheckCircle,
+  TriangleAlert
 } from "lucide-react"
 import { toasts } from "@/lib/toasts"
 import { QuestionType } from "@prisma/client"
@@ -76,6 +79,9 @@ export default function QuizTakingPage() {
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [questionsLoaded, setQuestionsLoaded] = useState<Set<number>>(new Set())
   const [isRestoringProgress, setIsRestoringProgress] = useState(false)
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const [reportSuggestion, setReportSuggestion] = useState("")
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false)
   const paginationContainerRef = useRef<HTMLDivElement>(null)
 
   // Quiz progress store
@@ -451,6 +457,42 @@ export default function QuizTakingPage() {
       toasts.error("Failed to submit quiz")
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleReportQuestion = async () => {
+    if (!quiz || !session?.user?.id || !reportSuggestion.trim()) {
+      toasts.error("Please provide a suggestion for the report")
+      return
+    }
+
+    setIsSubmittingReport(true)
+    try {
+      const response = await fetch("/api/user/question/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          questionId: quiz.questions[currentQuestionIndex].id,
+          suggestion: reportSuggestion.trim(),
+        }),
+      })
+
+      const responseData = await response.json()
+
+      if (response.ok) {
+        toasts.success("Question reported successfully!")
+        setIsReportDialogOpen(false)
+        setReportSuggestion("")
+      } else {
+        const errorMessage = responseData.error || responseData.details || "Failed to report question"
+        toasts.error(errorMessage)
+      }
+    } catch (error) {
+      toasts.error("Network error: Failed to report question")
+    } finally {
+      setIsSubmittingReport(false)
     }
   }
 
@@ -1030,20 +1072,101 @@ export default function QuizTakingPage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex justify-between items-center mt-6"
         >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button
-              variant="outline"
-              onClick={previousQuestion}
-              disabled={currentQuestionIndex === 0}
-              className="bg-card hover:bg-card/80 dark:bg-card dark:hover:bg-card/80"
+          <div className="flex items-center space-x-2">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous
-            </Button>
-          </motion.div>
+              <Button
+                variant="outline"
+                onClick={previousQuestion}
+                disabled={currentQuestionIndex === 0}
+                className="bg-card hover:bg-card/80 dark:bg-card dark:hover:bg-card/80"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+            </motion.div>
+
+            <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+              <DialogTrigger asChild>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:hover:bg-yellow-900/30 border-yellow-300 text-yellow-600 dark:text-yellow-400"
+                    title="Report Question"
+                  >
+                    <TriangleAlert className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Report Question</DialogTitle>
+                  <DialogDescription>
+                    Found an issue with this question? Let us know and we'll fix it.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={session?.user?.name || ""}
+                      disabled
+                      className="col-span-3 bg-muted"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="email" className="text-right">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      value={session?.user?.email || ""}
+                      disabled
+                      className="col-span-3 bg-muted"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="suggestion" className="text-right">
+                      Suggestion
+                    </Label>
+                    <Textarea
+                      id="suggestion"
+                      value={reportSuggestion}
+                      onChange={(e) => setReportSuggestion(e.target.value)}
+                      placeholder="Describe the issue with this question..."
+                      className="col-span-3"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsReportDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleReportQuestion}
+                    disabled={isSubmittingReport || !reportSuggestion.trim()}
+                  >
+                    {isSubmittingReport ? "Submitting..." : "Report"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
 
           <div className="flex-1 flex items-center justify-center">
             <div className="max-w-md mx-auto">

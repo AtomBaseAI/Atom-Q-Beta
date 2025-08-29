@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Switch } from "@/components/ui/switch"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Plus, Edit, Trash2, Eye, Loader2 } from "lucide-react"
+import { Plus, Edit, Trash2, Eye, TriangleAlert, Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import HexagonLoader from "@/components/Loader/Loading"
 import { LoadingButton } from "@/components/ui/laodaing-button"
@@ -267,6 +267,15 @@ export default function QuestionsPage() {
                       >
                         <a href={`/admin/question-groups/${group.id}/questions`}>
                           <Eye className="h-4 w-4" />
+                        </a>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
+                        <a href={`/admin/question-groups/${group.id}/reported-questions`}>
+                          <TriangleAlert className="h-4 w-4 text-yellow-600" />
                         </a>
                       </Button>
                       <Button
