@@ -197,7 +197,7 @@ export default function SettingsPage() {
               />
             </div>
 
-            <Separator />
+            {/* <Separator />
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
@@ -210,7 +210,7 @@ export default function SettingsPage() {
                 checked={formData.enableGithubAuth}
                 onCheckedChange={(checked) => handleInputChange("enableGithubAuth", checked)}
               />
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
