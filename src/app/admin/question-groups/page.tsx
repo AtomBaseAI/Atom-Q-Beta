@@ -160,8 +160,8 @@ export default function QuestionsPage() {
           </SheetTrigger>
           <SheetContent className="w-[400px] sm:w-[540px]">
             <form onSubmit={handleSubmit}>
-              <SheetHeader className="hidden">
-                <SheetTitle className="hidden">
+              <SheetHeader >
+                <SheetTitle>
                   {editingGroup ? "Edit Question Group" : "Create Question Group"}
                 </SheetTitle>
                 <SheetDescription>
