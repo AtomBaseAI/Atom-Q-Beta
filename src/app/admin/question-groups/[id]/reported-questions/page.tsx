@@ -274,14 +274,14 @@ export default function ReportedQuestionsPage() {
                                   </div>
                                   <div>
                                     <span className="font-medium">Correct Answer:</span>
-                                    <div className="mt-1 bg-green-50 border border-green-200 p-3 rounded text-sm">
+                                    <div className="mt-1  border border-green-200 p-3 rounded text-sm">
                                       {selectedReport?.question.correctAnswer || "No correct answer specified"}
                                     </div>
                                   </div>
                                   {selectedReport?.question.explanation && (
                                     <div>
                                       <span className="font-medium">Explanation:</span>
-                                      <div className="mt-1 bg-blue-50 border border-blue-200 p-3 rounded text-sm">
+                                      <div className="mt-1 border border-blue-200 p-3 rounded text-sm">
                                         <RichTextDisplay content={selectedReport.question.explanation} />
                                       </div>
                                     </div>
@@ -292,7 +292,7 @@ export default function ReportedQuestionsPage() {
                               {/* User Suggestion */}
                               <div>
                                 <h4 className="font-semibold text-sm text-muted-foreground mb-2">User Suggestion</h4>
-                                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded">
+                                <div className="border border-yellow-200 p-4 rounded">
                                   <p className="text-sm">{selectedReport?.suggestion || "No suggestion provided"}</p>
                                 </div>
                               </div>
