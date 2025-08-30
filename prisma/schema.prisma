@@ -8,22 +8,22 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  email          String          @unique
-  name           String?
-  password       String
-  role           UserRole        @default(USER)
-  avatar         String?
-  phone          String?
-  campus         String?
-  tags           String[]
-  isActive       Boolean         @default(true)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  quizAttempts   QuizAttempt[]
-  quizUsers      QuizUser[]
-  createdQuizzes Quiz[]          @relation("QuizCreator")
-  questionGroups QuestionGroup[]
+  id                String             @id @default(cuid())
+  email             String             @unique
+  name              String?
+  password          String
+  role              UserRole           @default(USER)
+  avatar            String?
+  phone             String?
+  campus            String?
+  tags              String[]
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  questionGroups    QuestionGroup[]
+  quizAttempts      QuizAttempt[]
+  quizUsers         QuizUser[]
+  createdQuizzes    Quiz[]             @relation("QuizCreator")
   reportedQuestions ReportedQuestion[]
 
   @@map("users")
@@ -36,28 +36,28 @@ model QuestionGroup {
   isActive    Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  questions   Question[]
   creatorId   String
   creator     User       @relation(fields: [creatorId], references: [id])
+  questions   Question[]
 
   @@map("question_groups")
 }
 
 model Question {
-  id            String          @id @default(cuid())
-  title         String
-  content       String
-  type          QuestionType
-  options       String
-  correctAnswer String
-  explanation   String?
-  difficulty    DifficultyLevel @default(MEDIUM)
-  isActive      Boolean         @default(true)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  quizQuestions QuizQuestion[]
-  groupId       String
-  group         QuestionGroup?  @relation(fields: [groupId], references: [id])
+  id                String             @id @default(cuid())
+  title             String
+  content           String
+  type              QuestionType
+  options           String
+  correctAnswer     String
+  explanation       String?
+  difficulty        DifficultyLevel    @default(MEDIUM)
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  groupId           String
+  group             QuestionGroup      @relation(fields: [groupId], references: [id])
+  quizQuestions     QuizQuestion[]
   reportedQuestions ReportedQuestion[]
 
   @@map("questions")
@@ -80,11 +80,11 @@ model Quiz {
   creatorId          String
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
+  checkAnswerEnabled Boolean         @default(false)
   quizAttempts       QuizAttempt[]
   quizQuestions      QuizQuestion[]
   quizUsers          QuizUser[]
   creator            User            @relation("QuizCreator", fields: [creatorId], references: [id])
-  checkAnswerEnabled Boolean         @default(false)
 
   @@map("quizzes")
 }
@@ -149,15 +149,15 @@ model QuizAnswer {
 }
 
 model ReportedQuestion {
-  id           String           @id @default(cuid())
-  questionId   String
-  userId       String
-  suggestion   String
-  status       ReportStatus     @default(PENDING)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  question     Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String       @id @default(cuid())
+  questionId String
+  userId     String
+  suggestion String
+  status     ReportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  question   Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("reported_questions")
 }

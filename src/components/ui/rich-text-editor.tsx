@@ -83,8 +83,8 @@ export function RichTextEditor({
       attributes: {
         class: cn(
           "focus:outline-none",
-          "min-h-[200px]",
-          "max-h-[300px]",
+          "min-h-[100px]",
+          "max-h-[200px]",
           "overflow-y-auto",
           "p-3",
           "leading-relaxed"

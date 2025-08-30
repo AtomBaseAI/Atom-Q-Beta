@@ -542,7 +542,7 @@ export default function ReportedQuestionsPage() {
 
       {/* Edit Question Dialog - Exact same as questions page */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="min-w-[90vw] w-full p-0 m-0 rounded-none">
+        <DialogContent className="min-w-[100vw] min-h-[99vh] w-full p-0 m-0 rounded-none">
           <form onSubmit={handleSubmit} className="flex flex-col h-full w-full">
             <div className="flex flex-col h-full w-full">
               <DialogHeader className="px-6 pt-6 pb-4 border-b">
@@ -550,7 +550,7 @@ export default function ReportedQuestionsPage() {
                   {editingQuestion ? "Edit Question" : "Create Question"}
                 </DialogTitle>
               </DialogHeader>
-              <div className="flex flex-row flex-1 overflow-y-auto px-6 py-4 space-y-6 gap-4">
+              <div className="flex flex-row flex-1 overflow-y-hidden px-6 py-4 space-y-6 gap-4">
                 <div className="flex flex-col flex-1 w-1/2 h-full p-4 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="title" className="text-sm font-medium">
