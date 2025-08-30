@@ -172,7 +172,8 @@ export default function ReportedQuestionsPage() {
                   <TableRow key={report.id}>
                     <TableCell className="font-medium">
                       <div className="max-w-xs">
-                        <RichTextDisplay content={report.question.content} />
+                        {/* <RichTextDisplay content={report.question.content} /> */}
+                        <p className="">{report.question.title}</p>
                       </div>
                     </TableCell>
                     <TableCell>
